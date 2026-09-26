@@ -1,0 +1,21 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Backend
+backend/node_modules/
+backend/__pycache__/
+backend/.venv/
+backend/venv/
+
+# Environment variables
+.env
+*.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
