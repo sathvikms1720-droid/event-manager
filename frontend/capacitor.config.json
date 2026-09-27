@@ -1,0 +1,5 @@
+{
+  "appId": "com.eventmanager.app",
+  "appName": "Event Manager",
+  "webDir": "dist"
+}

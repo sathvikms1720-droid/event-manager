@@ -511,17 +511,32 @@ export default function Dashboard() {
   ------------------------------------------------------- */
 
   const recentClients = [...filteredClients]
-    .sort((a, b) => {
-      const dateA = new Date(a.created_at || 0).getTime();
-      const dateB = new Date(b.created_at || 0).getTime();
+  .sort((a, b) => {
+    const dateA = new Date(a.created_at || 0).getTime();
+    const dateB = new Date(b.created_at || 0).getTime();
 
-      return dateB - dateA;
-    })
-    .slice(0, 8)
-    .map((client) => ({
+    return dateB - dateA;
+  })
+  .slice(0, 8)
+  .map((client) => {
+    let savedAvatar = null;
+
+    try {
+      savedAvatar = localStorage.getItem(
+        `client_avatar_${client.id}`
+      );
+    } catch {
+      savedAvatar = null;
+    }
+
+    return {
       ...client,
 
-      avatar: getClientAvatar(client.id),
+      // Use the same image selected on Clients page
+      avatar:
+        savedAvatar ||
+        client.avatar ||
+        "https://i.pravatar.cc/150?img=12",
 
       tint:
         client.id % 4 === 0
@@ -531,7 +546,8 @@ export default function Dashboard() {
           : client.id % 4 === 2
           ? "bg-amber-100 text-amber-700"
           : "bg-emerald-100 text-emerald-700",
-    }));
+    };
+  });
 
   /* -------------------------------------------------------
      OPEN EVENT
@@ -549,27 +565,36 @@ export default function Dashboard() {
   };
 
   const handleDeleteEvent = async () => {
-    if (!selectedEvent?.id) return;
+  if (!selectedEvent?.id) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${selectedEvent.title}"?`
+  const confirmed = window.confirm(
+    `Are you sure you want to delete "${selectedEvent.title}"?`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const token = localStorage.getItem("access_token");
+
+    await API.delete(`/events/${selectedEvent.id}`, {
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : {},
+    });
+
+    setSelectedEvent(null);
+    await loadDashboard();
+  } catch (deleteError) {
+    console.error("Failed to delete event:", deleteError);
+
+    alert(
+      deleteError?.response?.data?.detail ||
+        "Failed to delete event. Please try again."
     );
-
-    if (!confirmed) return;
-
-    try {
-      await API.delete(`/events/${selectedEvent.id}`);
-
-      setSelectedEvent(null);
-      await loadDashboard();
-    } catch (deleteError) {
-      console.error("Failed to delete event:", deleteError);
-      alert(
-        deleteError?.response?.data?.detail ||
-          "Failed to delete event. Please try again."
-      );
-    }
-  };
+  }
+};
 
   const openEvent = (event) => {
     if (!event) return;

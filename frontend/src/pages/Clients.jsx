@@ -1,16 +1,36 @@
 import BottomNav from "../components/BottomNav";
-import { useMemo, useState, useEffect } from "react";
-import { getClients, deleteClient as deleteClientAPI } from "../api/clientService";
+import { useMemo, useState, useEffect, useRef } from "react";
+import {
+  getClients,
+  addClient,
+  deleteClient as deleteClientAPI,
+} from "../api/clientService";
 import { getEvents } from "../api/eventService";
 
-const AVATARS = [
-  "https://randomuser.me/api/portraits/men/32.jpg",
-  "https://randomuser.me/api/portraits/women/44.jpg",
-  "https://randomuser.me/api/portraits/men/54.jpg",
-  "https://randomuser.me/api/portraits/women/68.jpg",
-  "https://randomuser.me/api/portraits/men/75.jpg",
-  "https://randomuser.me/api/portraits/women/12.jpg",
+const MALE_AVATARS = [
+  "https://i.pinimg.com/originals/10/8d/3b/108d3b91d89ff52b4826e41bb3724f28.jpg",
+  "https://dl-file.cyberlink.com/web/content/prompt_chatgpt_photo_linkedin_after_8cb0bbaae7.jpg",
+  "https://chatsmith.io/_next/image?q=75&url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fjms1jm9u%2Fproduction%2F212e9b69192299df6c999e36a62731a2b54172b0-1024x1024.png%3Fw%3D1200%26q%3D75%26fit%3Dmax%26auto%3Dformat&w=3840",
+  "https://media.chambers.com/individuals/3377238/ea71b95c-93ae-45a9-b731-6443858b462d/profile.png",
+  "https://es.pinterest.com/pin/30047522508796300/"
 ];
+const FEMALE_AVATARS = [
+  "https://images.wondershare.es/filmora/ai-prompt/retrato-empresaria-profesional.png",
+
+  "https://imagedelivery.net/QTx11AyQzp6Ss70cNfwJyQ/blog/photo-linkedin/photo-linkedin-0/public",
+
+  "https://pub-76a8e7f982bf4089b119723db9d1cebd.r2.dev/seo/migrated/EDjfdklfngbg7yZaX7oX2_j0DOAUl5.png",
+
+  "https://i.pinimg.com/736x/78/13/48/781348c74b850cff84646b88939d2685.jpg",
+
+  "https://www.familylawprotection.com/wp-content/uploads/2022/04/Screen-Shot-2020-01-13-at-4.44.45-PM.jpg",
+];
+const AVATARS = [...MALE_AVATARS, ...FEMALE_AVATARS];
+
+const getProfessionalAvatar = (gender, id = 0) => {
+  const list = gender === "female" ? FEMALE_AVATARS : MALE_AVATARS;
+  return list[Math.abs(Number(id) || 0) % list.length];
+};
 
 const INITIAL_CLIENTS = [
   {
@@ -20,6 +40,8 @@ const INITIAL_CLIENTS = [
     phone: "+91 83102 98600",
     email: "rahul.sharma@email.com",
     avatar: AVATARS[0],
+    gender: "male",
+    imageMode: "professional",
     nextEvent: "Rahul & Priya Wedding",
     nextDate: "2026-08-05T18:00:00",
     events: 8,
@@ -32,7 +54,9 @@ const INITIAL_CLIENTS = [
     tag: "New",
     phone: "+91 98765 43210",
     email: "priya.mehta@email.com",
-    avatar: AVATARS[1],
+    avatar: AVATARS[5],
+    gender: "female",
+    imageMode: "professional",
     nextEvent: "Birthday Party",
     nextDate: "2026-08-26T19:00:00",
     events: 2,
@@ -45,7 +69,9 @@ const INITIAL_CLIENTS = [
     tag: null,
     phone: "+91 91234 56789",
     email: "akash.verma@email.com",
-    avatar: AVATARS[2],
+    avatar: AVATARS[1],
+    gender: "male",
+    imageMode: "professional",
     nextEvent: "Corporate Launch",
     nextDate: "2026-08-24T11:00:00",
     events: 5,
@@ -58,7 +84,9 @@ const INITIAL_CLIENTS = [
     tag: null,
     phone: "+91 99887 76655",
     email: "neha.patel@email.com",
-    avatar: AVATARS[3],
+    avatar: AVATARS[6],
+    gender: "female",
+    imageMode: "professional",
     nextEvent: "Engagement Party",
     nextDate: "2026-09-02T18:00:00",
     events: 3,
@@ -71,7 +99,9 @@ const INITIAL_CLIENTS = [
     tag: null,
     phone: "+91 90909 90909",
     email: "vikram.rao@email.com",
-    avatar: AVATARS[4],
+    avatar: AVATARS[2],
+    gender: "male",
+    imageMode: "professional",
     nextEvent: null,
     nextDate: null,
     events: 1,
@@ -84,7 +114,9 @@ const INITIAL_CLIENTS = [
     tag: "VIP",
     phone: "+91 98111 22233",
     email: "sanya.kapoor@email.com",
-    avatar: AVATARS[5],
+    avatar: AVATARS[7],
+    gender: "female",
+    imageMode: "professional",
     nextEvent: "Anniversary Dinner",
     nextDate: "2026-08-18T20:00:00",
     events: 6,
@@ -186,11 +218,77 @@ const EMPTY = {
   nextDate: "",
   events: 0,
   spent: 0,
+  gender: "male",
+  imageMode: "professional",
+  avatar: "",
 };
 
 function ClientForm({ initial, onCancel, onSave }) {
-  const [form, setForm] = useState(initial ?? EMPTY);
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const startingForm = initial ?? EMPTY;
+  const [form, setForm] = useState({
+    ...EMPTY,
+    ...startingForm,
+    gender: startingForm.gender || "male",
+    imageMode: startingForm.imageMode || "professional",
+  });
+
+  const set = (k) => (e) =>
+    setForm((current) => ({ ...current, [k]: e.target.value }));
+
+  const chooseProfessionalImage = (gender, index = 0) => {
+    const list = gender === "female" ? FEMALE_AVATARS : MALE_AVATARS;
+
+    setForm((current) => ({
+      ...current,
+      gender,
+      imageMode: "professional",
+      avatar: list[index % list.length],
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please choose an image file.");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const image = new Image();
+
+      image.onload = () => {
+        const maxSize = 600;
+        const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+
+        canvas.width = Math.round(image.width * scale);
+        canvas.height = Math.round(image.height * scale);
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        const compressedImage = canvas.toDataURL("image/jpeg", 0.82);
+
+        setForm((current) => ({
+          ...current,
+          imageMode: "custom",
+          avatar: compressedImage,
+        }));
+      };
+
+      image.src = reader.result;
+    };
+
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const professionalOptions =
+    form.gender === "female" ? FEMALE_AVATARS : MALE_AVATARS;
 
   return (
     <form
@@ -201,13 +299,130 @@ function ClientForm({ initial, onCancel, onSave }) {
       }}
       className="space-y-3"
     >
+      {/* Profile image */}
+      <div className="rounded-2xl bg-gray-50 p-4">
+        <div className="flex flex-col items-center">
+          <div className="relative">
+            <img
+              src={
+                form.avatar ||
+                getProfessionalAvatar(form.gender, form.id)
+              }
+              alt="Client preview"
+              className="h-28 w-24 rounded-xl object-cover object-center shadow-md ring-4 ring-white"
+            />
+
+            <label
+              htmlFor="client-image"
+              className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md"
+              title="Choose your own image"
+            >
+              <Icon name="edit" className="h-3.5 w-3.5" />
+            </label>
+
+            <input
+              id="client-image"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </div>
+
+          <p className="mt-2 text-xs font-medium text-gray-700">
+            LinkedIn-style Professional Photo
+          </p>
+          <p className="mt-0.5 text-[10px] text-muted-foreground">
+            Face centered • suit/blazer • clean background
+          </p>
+        </div>
+
+        {/* Gender */}
+        <div className="mt-4">
+          <label className="block text-xs font-medium text-muted-foreground">
+            Gender
+          </label>
+
+          <div className="mt-1.5 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => chooseProfessionalImage("male", 0)}
+              className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                form.gender === "male"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-input bg-white text-muted-foreground"
+              }`}
+            >
+              Male
+            </button>
+
+            <button
+              type="button"
+              onClick={() => chooseProfessionalImage("female", 0)}
+              className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                form.gender === "female"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-input bg-white text-muted-foreground"
+              }`}
+            >
+              Female
+            </button>
+          </div>
+        </div>
+
+        {/* Professional image choices */}
+        <div className="mt-4">
+          <p className="text-xs font-medium text-muted-foreground">
+            Professional image
+          </p>
+
+          <div className="mt-2 grid grid-cols-5 gap-2">
+            {professionalOptions.map((image, index) => (
+              <button
+                key={image}
+                type="button"
+                onClick={() => chooseProfessionalImage(form.gender, index)}
+                className={`overflow-hidden rounded-lg p-0.5 transition ${
+                  form.imageMode === "professional" &&
+                  form.avatar === image
+                    ? "ring-2 ring-primary ring-offset-2"
+                    : ""
+                }`}
+                title={`Professional ${form.gender} photo ${index + 1}`}
+              >
+                <img
+                  src={image}
+                  alt={`Professional ${form.gender} option ${index + 1}`}
+                  className="h-14 w-11 rounded-md object-cover object-center"
+                />
+              </button>
+            ))}
+
+            <label
+              htmlFor="client-image"
+              className={`flex h-14 w-11 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-white text-gray-500 ${
+                form.imageMode === "custom"
+                  ? "ring-2 ring-primary ring-offset-2"
+                  : ""
+              }`}
+              title="Upload your own image"
+            >
+              <Icon name="edit" className="h-4 w-4" />
+            </label>
+          </div>
+        </div>
+      </div>
+
       {[
         ["Full name", "name", "text", "Rahul Sharma"],
         ["Phone", "phone", "text", "+91 90000 00000"],
         ["Email", "email", "email", "name@email.com"],
         ["Next event", "nextEvent", "text", "Wedding"],
       ].map(([label, key, type, ph]) => (
-        <label key={key} className="block text-xs font-medium text-muted-foreground">
+        <label
+          key={key}
+          className="block text-xs font-medium text-muted-foreground"
+        >
           {label}
           <input
             type={type}
@@ -218,6 +433,7 @@ function ClientForm({ initial, onCancel, onSave }) {
           />
         </label>
       ))}
+
       <div className="grid grid-cols-2 gap-3">
         <label className="block text-xs font-medium text-muted-foreground">
           Next event date
@@ -228,6 +444,7 @@ function ClientForm({ initial, onCancel, onSave }) {
             className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring"
           />
         </label>
+
         <label className="block text-xs font-medium text-muted-foreground">
           Tag
           <select
@@ -240,6 +457,7 @@ function ClientForm({ initial, onCancel, onSave }) {
             <option value="New">New</option>
           </select>
         </label>
+
         <label className="block text-xs font-medium text-muted-foreground">
           Total events
           <input
@@ -250,6 +468,7 @@ function ClientForm({ initial, onCancel, onSave }) {
             className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring"
           />
         </label>
+
         <label className="block text-xs font-medium text-muted-foreground">
           Total spent (₹)
           <input
@@ -261,6 +480,7 @@ function ClientForm({ initial, onCancel, onSave }) {
           />
         </label>
       </div>
+
       <div className="flex gap-2 pt-1">
         <button
           type="button"
@@ -269,6 +489,7 @@ function ClientForm({ initial, onCancel, onSave }) {
         >
           Cancel
         </button>
+
         <button
           type="submit"
           className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
@@ -287,7 +508,7 @@ function Sheet({ title, onClose, children }) {
       onClick={onClose}
     >
       <div
-       className="w-full max-w-[420px] bg-white rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
+       className="w-full max-w-[420px] bg-white rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -364,10 +585,32 @@ useEffect(() => {
           0
         );
 
+        let savedAvatar = null;
+        let savedGender = null;
+        let savedImageMode = null;
+
+        try {
+          savedAvatar = localStorage.getItem(`client_avatar_${client.id}`);
+          savedGender = localStorage.getItem(`client_gender_${client.id}`);
+          savedImageMode = localStorage.getItem(`client_image_mode_${client.id}`);
+        } catch {
+          savedAvatar = null;
+          savedGender = null;
+          savedImageMode = null;
+        }
+
+        const gender = savedGender || client.gender || "male";
+
         return {
           ...client,
 
-          avatar: AVATARS[client.id % AVATARS.length],
+          avatar:
+            savedAvatar ||
+            client.avatar ||
+            getProfessionalAvatar(gender, client.id),
+
+          gender,
+          imageMode: savedImageMode || "professional",
 
           tag: null,
 
@@ -409,6 +652,20 @@ useEffect(() => {
   const [sort, setSort] = useState("default");
   const [sortOpen, setSortOpen] = useState(false);
   const [menuId, setMenuId] = useState(null);
+  const menuRef = useRef(null);
+  useEffect(() => {
+  const handleOutsideClick = (e) => {
+    if (menuRef.current && !menuRef.current.contains(e.target)) {
+      setMenuId(null);
+    }
+  };
+
+  document.addEventListener("mousedown", handleOutsideClick);
+
+  return () => {
+    document.removeEventListener("mousedown", handleOutsideClick);
+  };
+}, []);
   const [pinnedClients, setPinnedClients] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("pinned_clients") || "[]");
@@ -495,28 +752,141 @@ useEffect(() => {
     return [...list].sort(sorters[sort] || sorters.default);
   }, [clients, query, sort]);
 
-  const saveClient = (form) => {
+  const saveClient = async (form) => {
+  try {
     const payload = {
-      ...form,
-      events: Number(form.events) || 0,
-      spent: Number(form.spent) || 0,
-      tag: form.tag || null,
+      name: form.name?.trim() || "",
+      phone: form.phone?.trim() || "",
+      email: form.email?.trim() || "",
+      address: form.address?.trim() || null,
+      notes: form.notes?.trim() || null,
     };
+
+    // =========================
+    // EDIT EXISTING CLIENT
+    // =========================
     if (form.id) {
-      setClients((cs) => cs.map((c) => (c.id === form.id ? { ...c, ...payload } : c)));
-    } else {
-      setClients((cs) => [
-        {
-          ...payload,
-          id: Date.now(),
-          avatar: AVATARS[cs.length % AVATARS.length],
-          addedAt: new Date().toISOString().slice(0, 10),
-        },
-        ...cs,
-      ]);
+      const updatedClient = {
+        ...form,
+        events: Number(form.events) || 0,
+        spent: Number(form.spent) || 0,
+        tag: form.tag || null,
+        gender: form.gender || "male",
+        imageMode: form.imageMode || "professional",
+        avatar:
+          form.avatar ||
+          getProfessionalAvatar(form.gender || "male", form.id),
+      };
+
+      try {
+        localStorage.setItem(
+          `client_avatar_${form.id}`,
+          updatedClient.avatar
+        );
+
+        localStorage.setItem(
+          `client_gender_${form.id}`,
+          updatedClient.gender
+        );
+
+        localStorage.setItem(
+          `client_image_mode_${form.id}`,
+          updatedClient.imageMode
+        );
+      } catch (error) {
+        console.error("Failed to save client profile image:", error);
+      }
+
+      setClients((currentClients) =>
+        currentClients.map((client) =>
+          client.id === form.id ? updatedClient : client
+        )
+      );
+
+      setEditing(null);
+      return;
     }
+
+    // =========================
+    // ADD NEW CLIENT
+    // =========================
+
+    // Save client permanently in backend / PostgreSQL
+    const response = await addClient(payload);
+
+    const savedClient = response.data;
+
+    // IMPORTANT:
+    // Use the ID generated by PostgreSQL/backend
+    const newClientId = savedClient.id;
+
+    const newAvatar =
+      form.avatar ||
+      getProfessionalAvatar(form.gender || "male", newClientId);
+
+    const newClient = {
+      ...savedClient,
+
+      id: newClientId,
+
+      gender: form.gender || "male",
+      imageMode: form.imageMode || "professional",
+      avatar: newAvatar,
+
+      tag: form.tag || null,
+
+      events: 0,
+      spent: 0,
+
+      nextEvent: null,
+      nextDate: null,
+
+      addedAt: savedClient.created_at
+        ? savedClient.created_at.slice(0, 10)
+        : new Date().toISOString().slice(0, 10),
+    };
+
+    // Save profile image locally
+    try {
+      localStorage.setItem(
+        `client_avatar_${newClientId}`,
+        newAvatar
+      );
+
+      localStorage.setItem(
+        `client_gender_${newClientId}`,
+        newClient.gender
+      );
+
+      localStorage.setItem(
+        `client_image_mode_${newClientId}`,
+        newClient.imageMode
+      );
+    } catch (error) {
+      console.error("Failed to save client profile image:", error);
+    }
+
+    // Show the newly created client immediately
+    setClients((currentClients) => [
+      newClient,
+      ...currentClients,
+    ]);
+
     setEditing(null);
-  };
+
+  } catch (error) {
+    console.error(
+      "Failed to save client:",
+      error.response?.data || error
+    );
+
+    alert(
+      error.response?.data?.detail ||
+        "Failed to save client. Please try again."
+    );
+  }
+};
+
   const togglePinClient = (clientId) => {
     setPinnedClients((current) => {
       const next = current.includes(clientId)
@@ -546,6 +916,14 @@ useEffect(() => {
       currentClients.filter((client) => client.id !== clientId)
     );
 
+    try {
+      localStorage.removeItem(`client_avatar_${clientId}`);
+      localStorage.removeItem(`client_gender_${clientId}`);
+      localStorage.removeItem(`client_image_mode_${clientId}`);
+    } catch (error) {
+      console.error("Failed to remove client profile image:", error);
+    }
+
     setMenuId(null);
 
     if (detail?.id === clientId) {
@@ -564,7 +942,7 @@ useEffect(() => {
 
   return (
     <div
-      className="min-h-screen bg-muted/40 pb-16"
+      className="min-h-screen overflow-x-hidden bg-muted/40 pb-16"
       
     >
       <div className="mx-auto w-full max-w-md px-4 pt-6">
@@ -680,7 +1058,7 @@ useEffect(() => {
           <article
   key={c.id}
   onClick={() => setDetail(c)}
- className="relative cursor-pointer rounded-2xl bg-card shadow-[0_1px_4px_rgba(0,0,0,0.07)]"
+ className="relative cursor-pointer overflow-visible rounded-2xl bg-card shadow-[0_1px_4px_rgba(0,0,0,0.07)]"
 >
   {/* Client top section */}
   <div className="px-3.5 py-3">
@@ -690,7 +1068,7 @@ useEffect(() => {
         src={c.avatar}
         alt={c.name}
         loading="lazy"
-        className="h-11 w-11 shrink-0 rounded-full object-cover"
+        className="h-11 w-11 shrink-0 rounded-full object-cover object-center"
       />
 
       {/* Client details */}
@@ -825,9 +1203,10 @@ useEffect(() => {
 {/* Three-dot menu */}
 {menuId === c.id && (
   <div
-    onClick={(e) => e.stopPropagation()}
-    className="absolute right-3 top-10 z-50 w-40 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
-  >
+  ref={menuRef}
+  onClick={(e) => e.stopPropagation()}
+  className="absolute right-3 top-10 z-50 w-40 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+>
     {/* Pin / Unpin — always at the top */}
     <button
       onClick={() => togglePinClient(c.id)}
@@ -922,7 +1301,10 @@ useEffect(() => {
         <Sheet title={detail.name} onClose={() => setDetail(null)}>
           <div className="flex items-center gap-3">
             <img
-              src={detail.avatar}
+              src={
+                detail.avatar ||
+                getProfessionalAvatar(detail.gender || "male", detail.id)
+              }
               alt={detail.name}
               className="h-16 w-16 rounded-full object-cover"
             />
