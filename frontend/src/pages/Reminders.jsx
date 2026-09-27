@@ -97,7 +97,7 @@ const getEventPhoto = (eventType = "") => {
   return PHOTOS[2];
 };
 
-const API = "http://127.0.0.1:8000";
+const API = "https://event-manager-pls6.onrender.com";
 
 const MON = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

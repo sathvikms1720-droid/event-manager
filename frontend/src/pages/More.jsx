@@ -414,7 +414,7 @@ const [uploading, setUploading] = useState(false);
     }
 
     const response = await fetch(
-      `http://127.0.0.1:8000/auth/delete-account?email=${encodeURIComponent(
+      `https://event-manager-pls6.onrender.com/auth/delete-account?email=${encodeURIComponent(
         savedUser.email
       )}`,
       {
@@ -866,7 +866,7 @@ const [uploading, setUploading] = useState(false);
     }
 
     const response = await fetch(
-      "http://127.0.0.1:8000/auth/profile",
+      "https://event-manager-pls6.onrender.com/auth/profile",
       {
         method: "PUT",
         headers: {
