@@ -27,6 +27,7 @@ app.add_middleware(
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://event-manager-eosin-five.vercel.app",
+    "https://event-manager-b8qwjt7q1-sathvikms1720-droids-projects.vercel.app",
     "https://localhost",
     "http://localhost",
     "capacitor://localhost",
