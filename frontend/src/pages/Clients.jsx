@@ -16,13 +16,9 @@ const MALE_AVATARS = [
 ];
 const FEMALE_AVATARS = [
   "https://images.wondershare.es/filmora/ai-prompt/retrato-empresaria-profesional.png",
-
   "https://imagedelivery.net/QTx11AyQzp6Ss70cNfwJyQ/blog/photo-linkedin/photo-linkedin-0/public",
-
   "https://pub-76a8e7f982bf4089b119723db9d1cebd.r2.dev/seo/migrated/EDjfdklfngbg7yZaX7oX2_j0DOAUl5.png",
-
   "https://i.pinimg.com/736x/78/13/48/781348c74b850cff84646b88939d2685.jpg",
-
   "https://www.familylawprotection.com/wp-content/uploads/2022/04/Screen-Shot-2020-01-13-at-4.44.45-PM.jpg",
 ];
 const AVATARS = [...MALE_AVATARS, ...FEMALE_AVATARS];
@@ -31,99 +27,6 @@ const getProfessionalAvatar = (gender, id = 0) => {
   const list = gender === "female" ? FEMALE_AVATARS : MALE_AVATARS;
   return list[Math.abs(Number(id) || 0) % list.length];
 };
-
-const INITIAL_CLIENTS = [
-  {
-    id: 1,
-    name: "Rahul Sharma",
-    tag: "VIP",
-    phone: "+91 83102 98600",
-    email: "rahul.sharma@email.com",
-    avatar: AVATARS[0],
-    gender: "male",
-    imageMode: "professional",
-    nextEvent: "Rahul & Priya Wedding",
-    nextDate: "2026-08-05T18:00:00",
-    events: 8,
-    spent: 425000,
-    addedAt: "2026-08-01",
-  },
-  {
-    id: 2,
-    name: "Priya Mehta",
-    tag: "New",
-    phone: "+91 98765 43210",
-    email: "priya.mehta@email.com",
-    avatar: AVATARS[5],
-    gender: "female",
-    imageMode: "professional",
-    nextEvent: "Birthday Party",
-    nextDate: "2026-08-26T19:00:00",
-    events: 2,
-    spent: 85000,
-    addedAt: "2026-08-02",
-  },
-  {
-    id: 3,
-    name: "Akash Verma",
-    tag: null,
-    phone: "+91 91234 56789",
-    email: "akash.verma@email.com",
-    avatar: AVATARS[1],
-    gender: "male",
-    imageMode: "professional",
-    nextEvent: "Corporate Launch",
-    nextDate: "2026-08-24T11:00:00",
-    events: 5,
-    spent: 210000,
-    addedAt: "2026-07-12",
-  },
-  {
-    id: 4,
-    name: "Neha Patel",
-    tag: null,
-    phone: "+91 99887 76655",
-    email: "neha.patel@email.com",
-    avatar: AVATARS[6],
-    gender: "female",
-    imageMode: "professional",
-    nextEvent: "Engagement Party",
-    nextDate: "2026-09-02T18:00:00",
-    events: 3,
-    spent: 125000,
-    addedAt: "2026-06-20",
-  },
-  {
-    id: 5,
-    name: "Vikram Rao",
-    tag: null,
-    phone: "+91 90909 90909",
-    email: "vikram.rao@email.com",
-    avatar: AVATARS[2],
-    gender: "male",
-    imageMode: "professional",
-    nextEvent: null,
-    nextDate: null,
-    events: 1,
-    spent: 45000,
-    addedAt: "2026-05-08",
-  },
-  {
-    id: 6,
-    name: "Sanya Kapoor",
-    tag: "VIP",
-    phone: "+91 98111 22233",
-    email: "sanya.kapoor@email.com",
-    avatar: AVATARS[7],
-    gender: "female",
-    imageMode: "professional",
-    nextEvent: "Anniversary Dinner",
-    nextDate: "2026-08-18T20:00:00",
-    events: 6,
-    spent: 315000,
-    addedAt: "2026-04-15",
-  },
-];
 
 const inr = (n) => "₹" + Number(n || 0).toLocaleString("en-IN");
 
@@ -162,6 +65,9 @@ function Icon({ name, className = "h-4 w-4" }) {
     trash: "M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6",
     edit: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z",
     pin: "M12 17v5M8 3h8M9 3v5l-3 4v2h12v-2l-3-4V3",
+    check: "M20 6L9 17l-5-5",
+    chevron: "M6 9l6 6 6-6",
+    spark: "M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1",
   };
   return (
     <svg
@@ -181,29 +87,30 @@ function Icon({ name, className = "h-4 w-4" }) {
 
 function StatCard({ icon, value, label, tone }) {
   return (
-    <div className="rounded-2xl bg-card p-3 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+    <div className="rounded-2xl border border-[#EFE5D6] bg-white p-3 text-center shadow-[0_1px_2px_rgba(140,105,55,0.05)] transition hover:shadow-[0_4px_14px_-6px_rgba(140,105,55,0.25)]">
       <div
-        className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full ${tone}`}
+        className={`mx-auto flex h-9 w-9 items-center justify-center rounded-xl ${tone}`}
       >
-        <Icon name={icon} />
+        <Icon name={icon} className="h-4 w-4" />
       </div>
-      <p className="mt-2 text-lg font-semibold text-foreground">{value}</p>
-      <p className="whitespace-nowrap text-[9px] leading-tight text-muted-foreground">{label}</p>
+      <p className="mt-2 text-lg font-bold tabular-nums tracking-tight text-[#3B2F22]">{value}</p>
+      <p className="whitespace-nowrap text-[9px] font-medium leading-tight text-[#A08E76]">{label}</p>
     </div>
   );
 }
 
 function Badge({ tag }) {
   if (!tag) return null;
-  const cls =
-    tag === "VIP"
-      ? "bg-amber-100 text-amber-700"
-      : "bg-violet-100 text-violet-700";
+  const isVip = tag === "VIP";
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${cls}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+        isVip
+          ? "bg-gradient-to-r from-amber-200 to-amber-100 text-amber-800 ring-1 ring-amber-300/60"
+          : "bg-[#EFE7DA] text-[#7A6A54]"
+      }`}
     >
-      {tag === "VIP" && <Icon name="star" className="h-3 w-3" />}
+      {isVip && <Icon name="star" className="h-2.5 w-2.5" />}
       {tag}
     </span>
   );
@@ -290,6 +197,10 @@ function ClientForm({ initial, onCancel, onSave }) {
   const professionalOptions =
     form.gender === "female" ? FEMALE_AVATARS : MALE_AVATARS;
 
+  const inputCls =
+    "mt-1 w-full rounded-xl border border-[#E4D8C6] bg-[#FFFCF8] px-3 py-2.5 text-sm font-medium text-[#3B2F22] outline-none transition placeholder:font-normal placeholder:text-[#B7A78F] focus:border-[#D99A45] focus:ring-2 focus:ring-amber-200/70";
+  const labelCls = "block text-[11px] font-semibold uppercase tracking-wide text-[#A08E76]";
+
   return (
     <form
       onSubmit={(e) => {
@@ -297,10 +208,10 @@ function ClientForm({ initial, onCancel, onSave }) {
         if (!form.name.trim()) return;
         onSave(form);
       }}
-      className="space-y-3"
+      className="space-y-4"
     >
       {/* Profile image */}
-      <div className="rounded-2xl bg-gray-50 p-4">
+      <div className="rounded-2xl border border-[#EFE5D6] bg-gradient-to-b from-[#FBF5EA] to-[#F7F0E3] p-4">
         <div className="flex flex-col items-center">
           <div className="relative">
             <img
@@ -314,7 +225,7 @@ function ClientForm({ initial, onCancel, onSave }) {
 
             <label
               htmlFor="client-image"
-              className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md"
+              className="absolute -bottom-1.5 -right-1.5 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-[#D99A45] to-[#B06D1F] text-white shadow-md transition hover:brightness-110"
               title="Choose your own image"
             >
               <Icon name="edit" className="h-3.5 w-3.5" />
@@ -329,28 +240,26 @@ function ClientForm({ initial, onCancel, onSave }) {
             />
           </div>
 
-          <p className="mt-2 text-xs font-medium text-gray-700">
-            LinkedIn-style Professional Photo
+          <p className="mt-3 text-xs font-semibold text-[#5B4A38]">
+            Professional photo
           </p>
-          <p className="mt-0.5 text-[10px] text-muted-foreground">
-            Face centered • suit/blazer • clean background
+          <p className="mt-0.5 text-[10px] text-[#A08E76]">
+            Face centered • clean background • or upload your own
           </p>
         </div>
 
         {/* Gender */}
         <div className="mt-4">
-          <label className="block text-xs font-medium text-muted-foreground">
-            Gender
-          </label>
+          <label className={labelCls}>Gender</label>
 
           <div className="mt-1.5 grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => chooseProfessionalImage("male", 0)}
-              className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+              className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
                 form.gender === "male"
-                  ? "border-primary bg-primary/10 text-foreground"
-                  : "border-input bg-white text-muted-foreground"
+                  ? "border-[#D99A45] bg-amber-100 text-[#3B2F22] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
+                  : "border-[#E4D8C6] bg-white text-[#A08E76] hover:border-[#D8C6AB]"
               }`}
             >
               Male
@@ -359,10 +268,10 @@ function ClientForm({ initial, onCancel, onSave }) {
             <button
               type="button"
               onClick={() => chooseProfessionalImage("female", 0)}
-              className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+              className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
                 form.gender === "female"
-                  ? "border-primary bg-primary/10 text-foreground"
-                  : "border-input bg-white text-muted-foreground"
+                  ? "border-[#D99A45] bg-amber-100 text-[#3B2F22] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
+                  : "border-[#E4D8C6] bg-white text-[#A08E76] hover:border-[#D8C6AB]"
               }`}
             >
               Female
@@ -372,9 +281,7 @@ function ClientForm({ initial, onCancel, onSave }) {
 
         {/* Professional image choices */}
         <div className="mt-4">
-          <p className="text-xs font-medium text-muted-foreground">
-            Professional image
-          </p>
+          <p className={labelCls}>Professional image</p>
 
           <div className="mt-2 grid grid-cols-5 gap-2">
             {professionalOptions.map((image, index) => (
@@ -385,8 +292,8 @@ function ClientForm({ initial, onCancel, onSave }) {
                 className={`overflow-hidden rounded-lg p-0.5 transition ${
                   form.imageMode === "professional" &&
                   form.avatar === image
-                    ? "ring-2 ring-primary ring-offset-2"
-                    : ""
+                    ? "ring-2 ring-[#D99A45] ring-offset-2"
+                    : "hover:ring-2 hover:ring-amber-200"
                 }`}
                 title={`Professional ${form.gender} photo ${index + 1}`}
               >
@@ -400,9 +307,9 @@ function ClientForm({ initial, onCancel, onSave }) {
 
             <label
               htmlFor="client-image"
-              className={`flex h-14 w-11 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-white text-gray-500 ${
+              className={`flex h-14 w-11 cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-[#D8C8B5] bg-white text-[#A08E76] transition hover:border-[#D99A45] hover:text-[#B06D1F] ${
                 form.imageMode === "custom"
-                  ? "ring-2 ring-primary ring-offset-2"
+                  ? "ring-2 ring-[#D99A45] ring-offset-2"
                   : ""
               }`}
               title="Upload your own image"
@@ -421,36 +328,36 @@ function ClientForm({ initial, onCancel, onSave }) {
       ].map(([label, key, type, ph]) => (
         <label
           key={key}
-          className="block text-xs font-medium text-muted-foreground"
+          className="block"
         >
-          {label}
+          <span className={labelCls}>{label}</span>
           <input
             type={type}
             value={form[key] ?? ""}
             onChange={set(key)}
             placeholder={ph}
-            className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring"
+            className={inputCls}
           />
         </label>
       ))}
 
       <div className="grid grid-cols-2 gap-3">
-        <label className="block text-xs font-medium text-muted-foreground">
-          Next event date
+        <label className="block">
+          <span className={labelCls}>Next event date</span>
           <input
             type="datetime-local"
             value={form.nextDate ?? ""}
             onChange={set("nextDate")}
-            className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring"
+            className={inputCls}
           />
         </label>
 
-        <label className="block text-xs font-medium text-muted-foreground">
-          Tag
+        <label className="block">
+          <span className={labelCls}>Tag</span>
           <select
             value={form.tag ?? ""}
             onChange={set("tag")}
-            className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring"
+            className={inputCls}
           >
             <option value="">None</option>
             <option value="VIP">VIP</option>
@@ -458,25 +365,25 @@ function ClientForm({ initial, onCancel, onSave }) {
           </select>
         </label>
 
-        <label className="block text-xs font-medium text-muted-foreground">
-          Total events
+        <label className="block">
+          <span className={labelCls}>Total events</span>
           <input
             type="number"
             min="0"
             value={form.events}
             onChange={set("events")}
-            className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring"
+            className={inputCls}
           />
         </label>
 
-        <label className="block text-xs font-medium text-muted-foreground">
-          Total spent (₹)
+        <label className="block">
+          <span className={labelCls}>Total spent (₹)</span>
           <input
             type="number"
             min="0"
             value={form.spent}
             onChange={set("spent")}
-            className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring"
+            className={inputCls}
           />
         </label>
       </div>
@@ -485,14 +392,14 @@ function ClientForm({ initial, onCancel, onSave }) {
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded-xl border border-input bg-background py-2.5 text-sm font-medium text-foreground"
+          className="flex-1 rounded-xl border border-[#E4D8C6] bg-white py-2.5 text-sm font-semibold text-[#5B4A38] transition hover:bg-[#FBF5EA]"
         >
           Cancel
         </button>
 
         <button
           type="submit"
-          className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
+          className="flex-1 rounded-xl bg-gradient-to-br from-[#D99A45] to-[#B06D1F] py-2.5 text-sm font-bold text-white shadow-[0_8px_18px_-8px_rgba(176,109,31,0.6)] transition hover:brightness-105 active:scale-[0.98]"
         >
           Save client
         </button>
@@ -504,25 +411,46 @@ function ClientForm({ initial, onCancel, onSave }) {
 function Sheet({ title, onClose, children }) {
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-black/50 flex items-end justify-center"
+      className="fixed inset-0 z-[9999] flex items-end justify-center bg-[#2A1D0E]/50 backdrop-blur-[3px] animate-[fadeIn_.2s_ease]"
       onClick={onClose}
     >
       <div
-       className="w-full max-w-[420px] bg-white rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="w-full max-w-[420px] rounded-t-[24px] border-t border-[#F0E6D6] bg-[#FFFCF8] px-5 pb-7 pt-2.5 shadow-2xl max-h-[85vh] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#E4D8C6]" />
+
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold tracking-tight text-[#3B2F22]">{title}</h2>
 
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center"
+            aria-label="Close"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EFE5D6] bg-white text-[#8A7960] transition hover:bg-[#F7F0E3]"
           >
             <Icon name="x" />
           </button>
         </div>
 
         {children}
+      </div>
+    </div>
+  );
+}
+
+function ClientCardSkeleton() {
+  return (
+    <div className="animate-pulse overflow-hidden rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <div className="h-11 w-11 rounded-full bg-[#F1E8DC]" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3 w-1/3 rounded-full bg-[#F1E8DC]" />
+          <div className="h-2.5 w-1/2 rounded-full bg-[#F6EFE3]" />
+        </div>
+        <div className="h-3 w-10 rounded-full bg-[#F6EFE3]" />
+      </div>
+      <div className="border-t border-[#F1E8DC] bg-[#FAF4E9] px-4 py-3">
+        <div className="h-2.5 w-2/3 rounded-full bg-[#EFE5D6]" />
       </div>
     </div>
   );
@@ -940,16 +868,28 @@ useEffect(() => {
   }
 };
 
+  const SORT_OPTIONS = [
+    ["default", "Default"],
+    ["name", "Name (A–Z)"],
+    ["events", "Most events"],
+    ["spent", "Highest spend"],
+    ["recent", "Recently added"],
+  ];
+  const activeSortLabel = SORT_OPTIONS.find(([k]) => k === sort)?.[1];
+
   return (
     <div
-      className="min-h-screen overflow-x-hidden bg-muted/40 pb-16"
+      className="min-h-screen overflow-x-hidden bg-[#FAF7F2] pb-16"
       
     >
       <div className="mx-auto w-full max-w-md px-4 pt-6">
-        <header className="flex items-start justify-between">
+        <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Clients</h1>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#C08A3E]">
+              Your network
+            </p>
+            <h1 className="text-2xl font-bold tracking-tight text-[#3B2F22]">Clients</h1>
+            <p className="mt-0.5 text-xs text-[#A08E76]">
               Manage and build strong relationships.
             </p>
           </div>
@@ -959,9 +899,10 @@ useEffect(() => {
               setEditing("new");
             }}
             aria-label="Add client"
-            className="rounded-full bg-white p-2.5 text-foreground shadow-sm"
+            className="flex items-center gap-1.5 rounded-full bg-gradient-to-br from-[#D99A45] to-[#B06D1F] px-4 py-2.5 text-sm font-bold text-white shadow-[0_8px_18px_-8px_rgba(176,109,31,0.65)] transition hover:brightness-105 active:scale-95"
           >
-            <Icon name="userPlus" />
+            <Icon name="userPlus" className="h-4 w-4" />
+            Add
           </button>
         </header>
 
@@ -976,65 +917,79 @@ useEffect(() => {
             icon="userPlus"
             value={stats.newThisMonth}
             label="New This Month"
-            tone="bg-violet-100 text-violet-700"
+            tone="bg-amber-100 text-amber-800"
           />
           <StatCard
             icon="calendar"
             value={stats.activeEvents}
             label="Active Events"
-            tone="bg-emerald-100 text-emerald-700"
+            tone="bg-amber-100 text-amber-800"
           />
           <StatCard
             icon="star"
             value={stats.repeat}
             label="Repeat Clients"
-            tone="bg-orange-100 text-orange-700"
+            tone="bg-amber-100 text-amber-800"
           />
         </div>
 
         <div className="relative mt-4 flex items-center gap-2">
-          <div className="flex flex-1 items-center gap-2 rounded-full bg-card px-3.5 py-2.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <Icon name="search" className="h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-1 items-center gap-2 rounded-full border border-[#EFE5D6] bg-white px-3.5 py-2.5 shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition focus-within:border-[#D99A45] focus-within:ring-2 focus-within:ring-amber-200/60">
+            <Icon name="search" className="h-4 w-4 shrink-0 text-[#A08E76]" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search clients by name, phone or email..."
-              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              placeholder="Search name, phone or email..."
+              className="w-full bg-transparent text-sm text-[#3B2F22] outline-none placeholder:text-[#B7A78F]"
             />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+                className="shrink-0 rounded-full p-0.5 text-[#B7A78F] transition hover:text-[#5B4A38]"
+              >
+                <Icon name="x" className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
           <button
             onClick={(e) => {
               e.stopPropagation();
               setSortOpen((v) => !v);
             }}
-            className="flex shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-2.5 text-sm text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+            className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2.5 text-sm shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition ${
+              sortOpen
+                ? "border-[#D99A45] bg-amber-50 text-[#B06D1F]"
+                : "border-[#EFE5D6] bg-white text-[#5B4A38] hover:bg-[#FBF5EA]"
+            }`}
           >
             <Icon name="sort" />
-            Sort
+            <span className="hidden xs:inline">{sort === "default" ? "Sort" : activeSortLabel}</span>
+            <Icon
+              name="chevron"
+              className={`h-3 w-3 transition-transform ${sortOpen ? "rotate-180" : ""}`}
+            />
           </button>
           {sortOpen && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 top-12 z-20 w-44 overflow-hidden rounded-xl border border-border bg-card shadow-lg"
+              className="absolute right-0 top-12 z-20 w-48 overflow-hidden rounded-2xl border border-[#E8DED0] bg-white p-1.5 shadow-xl"
             >
-              {[
-                ["default", "Default"],
-                ["name", "Name (A–Z)"],
-                ["events", "Most events"],
-                ["spent", "Highest spend"],
-                ["recent", "Recently added"],
-              ].map(([k, label]) => (
+              {SORT_OPTIONS.map(([k, label]) => (
                 <button
                   key={k}
                   onClick={() => {
                     setSort(k);
                     setSortOpen(false);
                   }}
-                  className={`block w-full px-3.5 py-2.5 text-left text-sm hover:bg-gray-100 ${
-                    sort === k ? "font-semibold text-foreground" : "text-muted-foreground"
+                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${
+                    sort === k
+                      ? "bg-amber-50 font-semibold text-[#3B2F22]"
+                      : "text-[#8A7960] hover:bg-[#F7F0E3]"
                   }`}
                 >
                   {label}
+                  {sort === k && <Icon name="check" className="h-4 w-4 text-[#B06D1F]" />}
                 </button>
               ))}
             </div>
@@ -1042,23 +997,26 @@ useEffect(() => {
         </div>
 
         {loading && (
-  <div className="rounded-2xl bg-card py-10 text-center text-sm text-muted-foreground">
-    Loading clients...
-  </div>
-)}
+          <div className="mt-4 space-y-3">
+            <ClientCardSkeleton />
+            <ClientCardSkeleton />
+            <ClientCardSkeleton />
+          </div>
+        )}
 
-{error && !loading && (
-  <div className="rounded-2xl bg-card py-10 text-center text-sm text-red-500">
-    {error}
-  </div>
-)}
+        {error && !loading && (
+          <div className="mt-4 rounded-2xl border border-red-100 bg-white py-10 text-center text-sm font-medium text-red-500 shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
+            {error}
+          </div>
+        )}
 
-<div className="mt-4 space-y-3">
+        {!loading && !error && (
+        <div className="mt-4 space-y-3">
           {visible.map((c) => (
           <article
   key={c.id}
   onClick={() => setDetail(c)}
- className="relative cursor-pointer overflow-visible rounded-2xl bg-card shadow-[0_1px_4px_rgba(0,0,0,0.07)]"
+ className="group relative cursor-pointer overflow-visible rounded-2xl border border-[#EFE5D6] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-8px_rgba(140,105,55,0.25)]"
 >
   {/* Client top section */}
   <div className="px-3.5 py-3">
@@ -1068,56 +1026,56 @@ useEffect(() => {
         src={c.avatar}
         alt={c.name}
         loading="lazy"
-        className="h-11 w-11 shrink-0 rounded-full object-cover object-center"
+        className="h-11 w-11 shrink-0 rounded-full object-cover object-center ring-2 ring-[#F5EDDF] transition group-hover:ring-amber-200"
       />
 
       {/* Client details */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 min-w-0">
-          <h3 className="truncate text-sm font-semibold text-foreground">
+          <h3 className="truncate text-sm font-bold tracking-tight text-[#3B2F22]">
             {c.name}
           </h3>
 
           {pinnedClients.includes(c.id) && (
             <span
-              className="shrink-0 text-[10px] text-amber-500"
+              className="shrink-0 text-amber-700"
               title="Pinned client"
               aria-label="Pinned client"
             >
-              📌
+              <Icon name="pin" className="h-3 w-3" />
             </span>
           )}
         </div>
 
-        <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <p className="mt-1 flex items-center gap-1.5 text-[11px] text-[#A08E76]">
           <Icon name="phone" className="h-3 w-3 shrink-0" />
           <span className="truncate">{c.phone}</span>
         </p>
 
-        <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#A08E76]">
           <Icon name="mail" className="h-3 w-3 shrink-0" />
           <span className="truncate">{c.email || "No email"}</span>
         </p>
       </div>
 
       {/* Statistics */}
-      <div className="flex shrink-0 items-center gap-4 pt-1 text-right">
+      <div className="flex shrink-0 items-center gap-3 pt-1 text-right">
         <div>
-          <p className="text-[9px] text-muted-foreground">
-            Total Events
+          <p className="text-[9px] font-medium text-[#B7A78F]">
+            Events
           </p>
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm font-bold tabular-nums text-[#3B2F22]">
             {c.events || 0}
           </p>
         </div>
 
-        <div className="h-7 w-px bg-gray-100" />
+        <div className="h-7 w-px bg-[#F1E8DC]" />
 
         <div>
-          <p className="text-[9px] text-muted-foreground">
-            Total Spent
+          <p className="text-[9px] font-medium text-[#B7A78F]">
+            Spent
           </p>
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm font-bold tabular-nums text-[#3B2F22]">
             {inr(c.spent)}
           </p>
         </div>
@@ -1129,7 +1087,11 @@ useEffect(() => {
             e.stopPropagation();
             setMenuId(menuId === c.id ? null : c.id);
           }}
-          className="ml-0.5 text-muted-foreground"
+          className={`ml-0.5 rounded-full p-1 transition ${
+            menuId === c.id
+              ? "bg-amber-100 text-amber-800"
+              : "text-[#A08E76] hover:bg-[#F7F0E3] hover:text-[#5B4A38]"
+          }`}
         >
           <Icon name="more" className="h-4 w-4" />
         </button>
@@ -1138,37 +1100,39 @@ useEffect(() => {
   </div>
 
   {/* Event section */}
-  <div className="border-t border-gray-100 bg-background/50 px-3.5 py-2.5">
+  <div className="border-t border-[#F1E8DC] bg-[#FAF4E9] px-3.5 py-2.5">
     <div className="flex items-center justify-between gap-2">
       
       {/* Event information */}
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-500">
+        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+          c.nextEvent ? "bg-amber-50 text-amber-700" : "bg-[#F1E8DC] text-[#B7A78F]"
+        }`}>
           <Icon name="calendar" className="h-4 w-4" />
         </div>
 
         <div className="min-w-0">
-          <p className="text-[9px] font-medium text-orange-500">
-            Upcoming Event
+          <p className={`text-[9px] font-bold uppercase tracking-wide ${c.nextEvent ? "text-amber-700" : "text-[#B7A78F]"}`}>
+            {c.nextEvent ? "Upcoming Event" : "Schedule"}
           </p>
 
           {c.nextEvent ? (
             <>
-              <p className="truncate text-[10px] font-semibold text-foreground">
+              <p className="truncate text-[10px] font-bold text-[#3B2F22]">
                 {c.nextEvent}
               </p>
 
-              <p className="text-[9px] text-muted-foreground">
+              <p className="text-[9px] font-medium text-[#A08E76]">
                 {formatEventDate(c.nextDate)}
               </p>
             </>
           ) : (
             <>
-              <p className="text-[10px] font-semibold text-foreground">
+              <p className="text-[10px] font-bold text-[#5B4A38]">
                 No Upcoming Events
               </p>
 
-              <p className="text-[9px] text-muted-foreground">
+              <p className="text-[9px] text-[#A08E76]">
                 Add an event to get started
               </p>
             </>
@@ -1183,7 +1147,7 @@ useEffect(() => {
             e.stopPropagation();
             setDetail(c);
           }}
-          className="shrink-0 rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-[9px] font-medium text-orange-500"
+          className="shrink-0 rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-wide text-amber-800 transition hover:bg-amber-50"
         >
           View Event
         </button>
@@ -1193,7 +1157,7 @@ useEffect(() => {
             e.stopPropagation();
             window.location.href = "/add-event";
           }}
-          className="shrink-0 rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-[9px] font-medium text-orange-500"
+          className="shrink-0 rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-wide text-amber-800 transition hover:bg-amber-50"
         >
           Add Event
         </button>
@@ -1205,14 +1169,14 @@ useEffect(() => {
   <div
   ref={menuRef}
   onClick={(e) => e.stopPropagation()}
-  className="absolute right-3 top-10 z-50 w-40 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+  className="absolute right-3 top-10 z-50 w-40 overflow-hidden rounded-2xl border border-[#E8DED0] bg-white p-1.5 shadow-xl"
 >
     {/* Pin / Unpin — always at the top */}
     <button
       onClick={() => togglePinClient(c.id)}
-      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm text-gray-900 hover:bg-amber-50"
+      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm text-[#3B2F22] transition hover:bg-[#F7F0E3]"
     >
-      <Icon name="pin" className="h-4 w-4 text-amber-500" />
+      <Icon name="pin" className="h-4 w-4 text-amber-700" />
       {pinnedClients.includes(c.id) ? "Unpin" : "Pin"}
     </button>
 
@@ -1222,7 +1186,7 @@ useEffect(() => {
         setEditing(c);
         setMenuId(null);
       }}
-      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm text-gray-900 hover:bg-gray-50"
+      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm text-[#3B2F22] transition hover:bg-[#F7F0E3]"
     >
       <Icon name="edit" className="h-4 w-4" />
       Edit
@@ -1231,7 +1195,7 @@ useEffect(() => {
     {/* Call */}
     <a
       href={`tel:${c.phone}`}
-      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm text-gray-900 hover:bg-gray-50"
+      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm text-[#3B2F22] transition hover:bg-[#F7F0E3]"
     >
       <Icon name="phone" className="h-4 w-4" />
       Call
@@ -1240,7 +1204,7 @@ useEffect(() => {
     {/* Email */}
     <a
       href={`mailto:${c.email}`}
-      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm text-gray-900 hover:bg-gray-50"
+      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm text-[#3B2F22] transition hover:bg-[#F7F0E3]"
     >
       <Icon name="mail" className="h-4 w-4" />
       Email
@@ -1252,7 +1216,7 @@ useEffect(() => {
         setMenuId(null);
         window.location.href = "/add-event";
       }}
-      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm text-gray-900 hover:bg-gray-50"
+      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm text-[#3B2F22] transition hover:bg-[#F7F0E3]"
     >
       <Icon name="calendar" className="h-4 w-4" />
       Add Event
@@ -1261,7 +1225,7 @@ useEffect(() => {
     {/* Delete Client */}
     <button
       onClick={() => deleteClient(c.id)}
-      className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm text-red-500 hover:bg-red-50"
+      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
     >
       <Icon name="trash" className="h-4 w-4" />
       Delete Client
@@ -1273,11 +1237,20 @@ useEffect(() => {
           ))}
 
           {visible.length === 0 && (
-            <p className="rounded-2xl border border-dashed border-border bg-card py-10 text-center text-sm text-muted-foreground">
-              No clients match “{query}”.
-            </p>
+            <div className="rounded-2xl border border-dashed border-[#E0D3BF] bg-white/70 py-12 text-center">
+              <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-[#F5EDDF] text-amber-700">
+                <Icon name="search" className="h-5 w-5" />
+              </div>
+              <p className="mt-3 text-sm font-semibold text-[#5B4A38]">
+                No clients found
+              </p>
+              <p className="mt-1 text-xs text-[#A08E76]">
+                Nothing matches “{query}”. Try a different search.
+              </p>
+            </div>
           )}
         </div>
+        )}
       </div>
 
       {editing && (
@@ -1299,6 +1272,7 @@ useEffect(() => {
 
       {detail && (
         <Sheet title={detail.name} onClose={() => setDetail(null)}>
+          <div className="rounded-2xl border border-[#EFE5D6] bg-gradient-to-b from-[#FBF5EA] to-white p-4">
           <div className="flex items-center gap-3">
             <img
               src={
@@ -1306,36 +1280,63 @@ useEffect(() => {
                 getProfessionalAvatar(detail.gender || "male", detail.id)
               }
               alt={detail.name}
-              className="h-16 w-16 rounded-full object-cover"
+              className="h-16 w-16 rounded-2xl object-cover ring-4 ring-white shadow-md"
             />
-            <div>
+            <div className="min-w-0">
               <Badge tag={detail.tag} />
-              <p className="mt-1 text-sm text-muted-foreground">{detail.phone}</p>
-              <p className="text-sm text-muted-foreground">{detail.email}</p>
+              <p className="mt-1 flex items-center gap-1.5 truncate text-sm font-medium text-[#5B4A38]">
+                <Icon name="phone" className="h-3 w-3 shrink-0 text-[#A08E76]" />
+                {detail.phone}
+              </p>
+              <p className="flex items-center gap-1.5 truncate text-sm text-[#8A7960]">
+                <Icon name="mail" className="h-3 w-3 shrink-0 text-[#A08E76]" />
+                {detail.email}
+              </p>
             </div>
           </div>
+          </div>
           <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-xl bg-muted p-3">
-              <dt className="text-xs text-muted-foreground">Total events</dt>
-              <dd className="font-semibold text-foreground">{detail.events}</dd>
+            <div className="rounded-2xl border border-[#EFE5D6] bg-[#FBF5EA] p-3.5">
+              <dt className="text-[10px] font-bold uppercase tracking-wide text-[#A08E76]">Total events</dt>
+              <dd className="mt-0.5 text-xl font-bold tabular-nums tracking-tight text-[#3B2F22]">{detail.events}</dd>
             </div>
-            <div className="rounded-xl bg-muted p-3">
-              <dt className="text-xs text-muted-foreground">Total spent</dt>
-              <dd className="font-semibold text-foreground">{inr(detail.spent)}</dd>
+            <div className="rounded-2xl border border-[#EFE5D6] bg-[#FBF5EA] p-3.5">
+              <dt className="text-[10px] font-bold uppercase tracking-wide text-[#A08E76]">Total spent</dt>
+              <dd className="mt-0.5 text-xl font-bold tabular-nums tracking-tight text-[#3B2F22]">{inr(detail.spent)}</dd>
             </div>
-            <div className="col-span-2 rounded-xl bg-muted p-3">
-              <dt className="text-xs text-muted-foreground">Next event</dt>
-              <dd className="font-semibold text-foreground">
+            <div className="col-span-2 rounded-2xl border border-amber-200/70 bg-amber-50/70 p-3.5">
+              <dt className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                <Icon name="calendar" className="h-3 w-3" />
+                Next event
+              </dt>
+              <dd className="mt-0.5 font-bold text-[#3B2F22]">
                 {detail.nextEvent
                   ? `${detail.nextEvent} — ${formatEventDate(detail.nextDate)}`
                   : "No upcoming event"}
               </dd>
             </div>
           </dl>
+
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <a
+              href={`tel:${detail.phone}`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-[#E4D8C6] bg-white py-2.5 text-sm font-semibold text-[#5B4A38] transition hover:bg-[#FBF5EA]"
+            >
+              <Icon name="phone" className="h-4 w-4 text-[#B06D1F]" />
+              Call
+            </a>
+            <a
+              href={`mailto:${detail.email}`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-[#E4D8C6] bg-white py-2.5 text-sm font-semibold text-[#5B4A38] transition hover:bg-[#FBF5EA]"
+            >
+              <Icon name="mail" className="h-4 w-4 text-[#B06D1F]" />
+              Email
+            </a>
+          </div>
         </Sheet>
         
       )}
-      <BottomNav active="clients" theme="purple" />
+      <BottomNav active="clients" theme="amber" />
     </div>
   );
 }

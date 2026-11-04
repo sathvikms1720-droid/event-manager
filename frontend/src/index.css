@@ -5,10 +5,29 @@ body,
 #root {
   margin: 0;
   padding: 0;
+  width: 100%;
   min-height: 100%;
+}
+
+html {
+  background: #f8fafc;
 }
 
 body {
   font-family: "Poppins", sans-serif;
   background: #f8fafc;
+
+  /* Keep important content away from camera/status area */
+  padding-top: env(safe-area-inset-top);
+
+  /* Keep bottom navigation away from Android system area */
+  padding-bottom: env(safe-area-inset-bottom);
+
+  box-sizing: border-box;
+}
+
+#root {
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
 }

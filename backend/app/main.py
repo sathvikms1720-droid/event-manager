@@ -14,6 +14,7 @@ from app.routers import auth
 from app.routers import clients
 from app.routers import dashboard
 from app.routers import events
+from app.routers import reminders
 
 Base.metadata.create_all(bind=engine)
 
@@ -40,6 +41,7 @@ app.include_router(clients.router)
 app.include_router(events.router)
 app.include_router(dashboard.router)
 app.include_router(auth.router)
+app.include_router(reminders.router)
 
 @app.get("/")
 def home():

@@ -1,355 +1,51 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
-const styles = `
-.mo-wrap{
-    min-height:100vh;
-    background:#f3f4f6;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-}
-.mo-phone{
-    width:100%;
-    max-width:430px;
-    min-height:100vh;
-    background:#faf5ee;
-    position:relative;
-    padding:18px 14px 95px;
-    .profile-arrow {
-  margin-left: auto;
-  border: none;
-  background: transparent;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-}
-.mo-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
-.mo-top h1{margin:0;font-size:24px;font-weight:700;letter-spacing:-.4px;}
-.mo-top p{margin:4px 0 0;font-size:13px;color:#9a8874;}
-.mo-bell{position:relative;width:40px;height:40px;border-radius:50%;border:none;background:#f4e7d6;color:#b5793a;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.mo-bell .dot{position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%;background:#d05b4a;border:2px solid #f4e7d6;}
-.mo-card{background:#fffdfa;border:1px solid #f0e4d4;border-radius:18px;box-shadow:0 1px 2px rgba(146,110,66,.06);overflow:hidden;}
-.mo-profile{display:flex;align-items:center;gap:14px;padding:16px;width:100%;background:none;border:none;cursor:pointer;text-align:left;font:inherit;color:inherit;}
-.mo-avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;flex:none;border:2px solid #f2e2cd;}
-.mo-profile h3{margin:0;font-size:15.5px;font-weight:700;}
-.mo-profile span{display:block;font-size:12.5px;color:#b5793a;margin-top:2px;}
-.mo-profile small{display:block;font-size:12px;color:#a89684;margin-top:2px;}
-.mo-sec{font-size:13px;font-weight:700;margin:22px 0 8px 4px;}
-.mo-quick{display:grid;grid-template-columns:repeat(4,1fr);padding:14px 6px;}
-.mo-quick button{background:none;border:none;cursor:pointer;font:inherit;color:#5a4b3d;display:flex;flex-direction:column;align-items:center;gap:7px;font-size:11.5px;font-weight:600;padding:6px 2px;border-radius:12px;transition:background .2s;}
-.mo-quick button:hover{background:#faf1e4;}
-.mo-quick .ic{color:#b5793a;}
-.mo-row{display:flex;align-items:center;gap:13px;padding:14px 16px;border-bottom:1px solid #f3ebe0;width:100%;background:none;border-left:none;border-right:none;border-top:none;cursor:pointer;font:inherit;color:inherit;text-align:left;transition:background .15s;}
-.mo-row:last-child{border-bottom:none;}
-.mo-row:hover{background:#fdf7ef;}
-.mo-row .ic{color:#b5793a;flex:none;}
-.mo-row .lbl{font-size:14px;font-weight:500;}
-.mo-row .right{margin-left:auto;display:flex;align-items:center;gap:8px;color:#a89684;font-size:12.5px;}
-.mo-pill{background:#f6e7d3;color:#b5793a;border-radius:999px;font-size:11px;font-weight:700;padding:2px 8px;}
-.mo-switch{width:42px;height:24px;border-radius:999px;background:#e9dccb;border:none;position:relative;cursor:pointer;flex:none;transition:background .2s;}
-.mo-switch.on{background:#bd7a2c;}
-.mo-switch i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;display:block;}
-.mo-switch.on i{transform:translateX(18px);}
-.mo-logout{margin-top:22px;width:100%;padding:14px;border-radius:14px;border:1px solid #f0d5cf;background:#fdf1ee;color:#c0503c;font-weight:700;font-size:14px;cursor:pointer;}
-.mo-delete{
-  margin-top:10px;
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:1px solid #f0c9c2;
-  background:#fff8f6;
-  color:#c0503c;
-  font-weight:700;
-  font-size:14px;
-  cursor:pointer;
-}
+import {
+  Bell,
+  CalendarPlus,
+  UserPlus,
+  Calendar,
+  Users,
+  UsersRound,
+  CreditCard,
+  SquareCheck,
+  Palette,
+  Globe,
+  Cloud,
+  HelpCircle,
+  Mail,
+  Info,
+  ChevronRight,
+  X,
+  Camera,
+  ArrowLeft,
+  LogOut,
+  Trash2,
+  TriangleAlert,
+  CheckCircle2,
+  Lock,
+} from "lucide-react";
 
-.mo-delete:active{
-  transform:scale(.98);
-}
-.mo-ver{text-align:center;font-size:11.5px;color:#b0a191;margin-top:14px;}
-.mo-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
+/* ============================================================
+   Design tokens — warm editorial palette (matches Calendar)
+   Cream paper · espresso ink · sand lines · amber accent
+   ============================================================ */
+const BG = "#faf7f2";
+const CARD = "#FFFDF9";
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 16px;
-
-  background: rgba(45, 38, 31, 0.48);
-
-  overflow: hidden;
-}
-.mo-sheet{
-  background:transparent;
-  width:100%;
-  max-width:420px;
-  max-height:calc(100vh - 32px);
-  padding:0;
-  overflow:hidden;
-}
-  .mo-sheet.profile-wrapper {
-  max-height:calc(100vh - 32px);
-  overflow:hidden;
-  background:transparent;
-  padding:0;
-}
-.mo-sheet h4{margin:0 0 4px;font-size:16px;font-weight:700;}
-.mo-sheet p{margin:0 0 14px;font-size:13px;color:#9a8874;line-height:1.5;}
-.mo-opt{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border-radius:12px;border:1px solid #f0e4d4;background:#fffdfa;font:inherit;color:inherit;cursor:pointer;margin-bottom:8px;font-size:13.5px;}
-.mo-opt.sel{border-color:#bd7a2c;background:#fdf4e8;color:#8a6a45;font-weight:600;}
-.mo-btn{width:100%;padding:13px;border-radius:12px;border:1px solid #ecdfcd;background:#fdf7ef;color:#8a6a45;font-weight:600;font-size:13.5px;cursor:pointer;margin-top:6px;}
-.mo-btn.primary{background:#bd7a2c;border-color:#bd7a2c;color:#fff;}
-.mo-input{width:100%;padding:11px 12px;border-radius:12px;border:1px solid #f0e4d4;background:#fffdfa;font:inherit;font-size:13.5px;color:#3a2f26;margin-bottom:10px;outline:none;}
-.mo-input:focus{border-color:#d8a15f;}
-.mo-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#3a2f26;color:#fdf7ef;padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:60;box-shadow:0 8px 20px rgba(58,47,38,.3);}
-/* PROFILE EDIT POPUP */
-.profile-modal {
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  overflow: hidden;
-}
-.profile-sheet {
-  width: 100%;
-  max-width: 430px;
-
-  max-height: calc(100vh - 32px);
-
-  background: #fffdfa;
-  border-radius: 28px;
-
-  padding: 20px 16px 18px;
-
-  box-shadow:
-    0 20px 60px rgba(55, 40, 25, 0.25);
-
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  /* Hide scrollbar */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.profile-sheet::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
-}
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.profile-back {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid #f0e4d4;
-  background: #fff8ef;
-  color: #5a4b3d;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.profile-title h4 {
-  margin: 0;
-  font-size: 19px;
-  font-weight: 700;
-}
-
-.profile-title p {
-  margin: 3px 0 0;
-  font-size: 12px;
-  color: #9a8874;
-}
-
-.profile-photo-card {
-  border: 1px solid #f0e4d4;
-  border-radius: 18px;
-  padding: 16px 10px 12px;
-  background: #fffdfa;
-}
-
-.profile-photo-title {
-  font-size: 13px;
-  font-weight: 700;
-  margin: 0 0 12px;
-  color: #2f2924;
-}
-
-.profile-image-wrap {
-  position: relative;
-  width: 104px;
-  height: 104px;
-  margin: 0 auto 16px;
-}
-
-.profile-main-image {
-  width: 104px;
-  height: 104px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid #f5dcbf;
-  background: #fff;
-}
-
-.profile-camera {
-  position: absolute;
-  right: -2px;
-  bottom: -1px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 3px solid white;
-  background: #fff4e5;
-  color: #bd7a2c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(90, 65, 40, .12);
-}
-
-.avatar-options {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border: 1px solid #f0e4d4;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.avatar-option {
-  border: none;
-  border-right: 1px solid #f4eadf;
-  background: #fffdfa;
-  padding: 9px 4px;
-  min-height: 62px;
-  cursor: pointer;
-  color: #5a4b3d;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 11px;
-}
-
-.avatar-option:last-child {
-  border-right: none;
-}
-
-.avatar-option.selected {
-  background: #fff1df;
-  color: #8d5d22;
-}
-
-.avatar-option .avatar-icon {
-  font-size: 23px;
-  line-height: 1;
-}
-
-.profile-fields {
-  margin-top: 14px;
-}
-
-.profile-field {
-  margin-bottom: 10px;
-}
-
-.profile-field label {
-  display: block;
-  margin: 0 0 5px;
-  padding-left: 2px;
-  font-size: 11px;
-  color: #8f7c69;
-}
-
-.profile-field input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px 12px;
-  height: 38px;
-  border-radius: 10px;
-  border: 1px solid #f0e4d4;
-  background: #fffdfa;
-  color: #3a2f26;
-  font: inherit;
-  font-size: 13px;
-  outline: none;
-}
-
-.profile-field input:focus {
-  border-color: #d8a15f;
-}
-
-.profile-field input:disabled {
-  background: #f8f5f1;
-  color: #aaa19a;
-}
-
-.profile-save {
-  width: 100%;
-  height: 42px;
-  border: none;
-  border-radius: 10px;
-  background: #bd7a2c;
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 2px;
-  box-shadow: 0 5px 12px rgba(189, 122, 44, .18);
-}
-
-.profile-save:active {
-  transform: scale(.98);
+/* Self-contained motion */
+const GLOBAL_CSS = `
+@keyframes moFade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes moRise { from { opacity: 0; transform: translateY(28px) scale(.98) } to { opacity: 1; transform: none } }
+@keyframes moToast { from { opacity: 0; transform: translate(-50%, 12px) } to { opacity: 1; transform: translate(-50%, 0) } }
+.mo-fade { animation: moFade .18s ease-out both }
+.mo-rise { animation: moRise .3s cubic-bezier(.22,1,.36,1) both }
+.mo-toast-in { animation: moToast .25s cubic-bezier(.22,1,.36,1) both }
+@media (prefers-reduced-motion: reduce) {
+  .mo-fade, .mo-rise, .mo-toast-in { animation: none }
 }
 `;
-
-function Icon({ d, size = 18 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      {d}
-    </svg>
-  );
-}
-
-const I = {
-  bell: <><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8" /><path d="M13.7 21a2 2 0 0 1-3.4 0" /></>,
-  calPlus: <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4" /></>,
-  userPlus: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></>,
-  cal: <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></>,
-  users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /></>,
-  card: <><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></>,
-  check: <><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></>,
-  team: <><circle cx="9" cy="7" r="4" /><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" /><circle cx="18" cy="9" r="3" /></>,
-  paint: <><circle cx="12" cy="12" r="9" /><circle cx="8.5" cy="10" r="1" /><circle cx="12" cy="7.5" r="1" /><circle cx="15.5" cy="10" r="1" /></>,
-  globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" /></>,
-  cloud: <><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.2 10.5A4 4 0 0 0 7 19h10.5Z" /></>,
-  help: <><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 1 1 3 2.5V13" /><path d="M12 17h.01" /></>,
-  mail: <><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 6 10-6" /></>,
-  info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>,
-};
-
-const Chevron = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c2b1a0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="9 18 15 12 9 6" />
-  </svg>
-);
 
 const AVATAR =
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80";
@@ -361,16 +57,171 @@ const GIRL_AVATAR =
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80";
 
 const MANAGEMENT = [
-  { id: "clients", label: "Clients", icon: I.users, count: 24 },
-  { id: "events", label: "Events", icon: I.cal, count: 8 },
-  { id: "payments", label: "Payments", icon: I.card, count: 3 },
-  { id: "tasks", label: "Tasks", icon: I.check, count: 12 },
-  { id: "team", label: "Team", icon: I.team, count: 5 },
+  { id: "clients", label: "Clients", icon: Users, count: 24 },
+  { id: "events", label: "Events", icon: Calendar, count: 8 },
+  { id: "payments", label: "Payments", icon: CreditCard, count: 3 },
+  { id: "tasks", label: "Tasks", icon: SquareCheck, count: 12 },
+  { id: "team", label: "Team", icon: UsersRound, count: 5 },
 ];
 
 const THEMES = ["System", "Light", "Dark"];
 const LANGUAGES = ["English", "हिन्दी", "Español", "Français", "Deutsch"];
 
+/* ── SHARED PIECES ── */
+function Switch({ on, onToggle, label }) {
+  return (
+    <button
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
+      onClick={onToggle}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200 ${
+        on ? "bg-amber-500" : "bg-[#E8DDCE]"
+      }`}
+    >
+      <span
+        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+          on ? "translate-x-5" : ""
+        }`}
+      />
+    </button>
+  );
+}
+
+function Row({ icon: Icon, label, right, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="group flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-[#F7F0E6]/70"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F7F0E6] text-[#B5793A]">
+        <Icon size={17} />
+      </span>
+      <span className="text-sm font-medium text-[#3B2F22]">{label}</span>
+      <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-[#9C8A73]">
+        {right}
+        <ChevronRight size={15} className="text-[#D8CFC2] transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </button>
+  );
+}
+
+const Pill = ({ children }) => (
+  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+    {children}
+  </span>
+);
+
+function Modal({ open, onClose, children }) {
+  // Escape-to-close and body scroll lock (hooks stay unconditional).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+      <button
+        aria-label="Close"
+        onClick={onClose}
+        className="mo-fade absolute inset-0 bg-[#2A2018]/45 backdrop-blur-[2px]"
+      />
+      <div className="mo-rise relative flex max-h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-t-[28px] border border-[#EEE5D8] bg-[#FFFDF9] shadow-2xl sm:rounded-[28px]">
+        <div className="mx-auto mt-3 h-1 w-10 shrink-0 rounded-full bg-[#E8DDCE] sm:hidden" />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function SheetHeader({ title, subtitle, onClose, icon: Icon }) {
+  return (
+    <div className="flex shrink-0 items-start justify-between gap-3 px-5 pb-3 pt-4">
+      <div className="flex items-start gap-3">
+        {Icon && (
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F7F0E6] text-[#B5793A]">
+            <Icon size={18} />
+          </span>
+        )}
+        <div>
+          <h4 className="text-base font-semibold text-[#3B2F22]">{title}</h4>
+          {subtitle && <p className="mt-0.5 text-xs leading-relaxed text-[#9C8A73]">{subtitle}</p>}
+        </div>
+      </div>
+      <button
+        onClick={onClose}
+        aria-label="Close"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#E8DDCE] text-[#9C8A73] transition-colors hover:bg-[#F7F0E6]"
+      >
+        <X size={15} />
+      </button>
+    </div>
+  );
+}
+
+const PrimaryBtn = ({ children, onClick, disabled }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className="w-full rounded-xl bg-[#3B2F22] px-4 py-3 text-sm font-semibold text-[#FAF7F2] shadow-sm transition-all hover:bg-[#4A3B2C] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+  >
+    {children}
+  </button>
+);
+
+const GhostBtn = ({ children, onClick }) => (
+  <button
+    onClick={onClick}
+    className="w-full rounded-xl border border-[#EEE5D8] bg-white px-4 py-3 text-sm font-semibold text-[#8A7966] transition-colors hover:bg-[#F7F0E6] active:scale-[0.98]"
+  >
+    {children}
+  </button>
+);
+
+const DangerBtn = ({ children, onClick }) => (
+  <button
+    onClick={onClick}
+    className="w-full rounded-xl bg-[#C0503C] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#AD4432] active:scale-[0.98]"
+  >
+    {children}
+  </button>
+);
+
+function OptionButton({ selected, children, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`flex w-full items-center justify-between rounded-xl border px-3.5 py-3 text-left text-[13.5px] transition-colors ${
+        selected
+          ? "border-amber-300 bg-amber-50 font-semibold text-amber-800"
+          : "border-[#EEE5D8] bg-white text-[#5C4B3A] hover:bg-[#F7F0E6]"
+      }`}
+    >
+      {children}
+      {selected && <CheckCircle2 size={16} className="shrink-0 text-amber-600" />}
+    </button>
+  );
+}
+
+const SectionTitle = ({ children }) => (
+  <h2 className="mb-2 ml-1 mt-6 text-[11px] font-bold uppercase tracking-[0.18em] text-[#B3A28C]">
+    {children}
+  </h2>
+);
+
+/* ── MORE PAGE ── */
 export default function More() {
   const [sheet, setSheet] = useState(null);
   const navigate = useNavigate();
@@ -379,19 +230,18 @@ export default function More() {
   const [language, setLanguage] = useState("English");
   const [notifs, setNotifs] = useState({ push: true, email: false, reminders: true });
   const [backup, setBackup] = useState(true);
- const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+  const savedUser = JSON.parse(localStorage.getItem("user") || "null");
 
-const [profile, setProfile] = useState({
-  name: savedUser?.full_name || savedUser?.name || "",
-  role: "Event Manager",
-  email: savedUser?.email || "",
-  phone: savedUser?.phone || "",
-  avatar: savedUser?.avatar || AVATAR,
-});
+  const [profile, setProfile] = useState({
+    name: savedUser?.full_name || savedUser?.name || "",
+    role: "Event Manager",
+    email: savedUser?.email || "",
+    phone: savedUser?.phone || "",
+    avatar: savedUser?.avatar || AVATAR,
+  });
 
-const [draft, setDraft] = useState(profile);
-const [selectedAvatar, setSelectedAvatar] = useState(AVATAR);
-const [uploading, setUploading] = useState(false);
+  const [draft, setDraft] = useState(profile);
+  const [selectedAvatar, setSelectedAvatar] = useState(AVATAR);
   const [support, setSupport] = useState("");
 
   useEffect(() => {
@@ -402,694 +252,664 @@ const [uploading, setUploading] = useState(false);
 
   const close = () => setSheet(null);
   const notify = (m) => { setToast(m); close(); };
+
   const handleDeleteAccount = async () => {
-  try {
-    const savedUser = JSON.parse(
-      localStorage.getItem("user") || "null"
-    );
+    try {
+      const savedUser = JSON.parse(
+        localStorage.getItem("user") || "null"
+      );
 
-    if (!savedUser?.email) {
-      setToast("User information not found");
-      return;
-    }
-
-    const response = await fetch(
-      `https://event-manager-pls6.onrender.com/auth/delete-account?email=${encodeURIComponent(
-        savedUser.email
-      )}`,
-      {
-        method: "DELETE",
+      if (!savedUser?.email) {
+        setToast("User information not found");
+        return;
       }
-    );
 
-    const data = await response.json();
+      const response = await fetch(
+        `https://event-manager-pls6.onrender.com/auth/delete-account?email=${encodeURIComponent(
+          savedUser.email
+        )}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-    if (!response.ok) {
-      throw new Error(data.detail || "Failed to delete account");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Failed to delete account");
+      }
+
+      // Remove login/session data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      // Close popup
+      setSheet(null);
+
+      // Go to login
+      navigate("/login");
+
+    } catch (error) {
+      console.error("Delete account error:", error);
+      setToast(error.message || "Failed to delete account");
     }
+  };
 
-    // Remove login/session data
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+  const openProfile = () => {
+    setDraft(profile);
+    setSelectedAvatar(profile.avatar || AVATAR);
+    setSheet("profile");
+  };
 
-    // Close popup
-    setSheet(null);
-
-    // Go to login
-    navigate("/login");
-
-  } catch (error) {
-    console.error("Delete account error:", error);
-    setToast(error.message || "Failed to delete account");
-  }
-};
-
-  const Row = ({ icon, label, right, onClick }) => (
-    <button className="mo-row" onClick={onClick}>
-      <span className="ic"><Icon d={icon} /></span>
-      <span className="lbl">{label}</span>
-      <span className="right">{right}<Chevron /></span>
-    </button>
-  );
+  const notificationsOn = Object.values(notifs).filter(Boolean).length;
 
   return (
-    <div className="mo-wrap">
-      <style>{styles}</style>
-      <div className="mo-phone">
-        <div className="mo-top">
-          <div>
-            <h1>More</h1>
-            <p>Manage your account and app settings.</p>
-          </div>
-          <button className="mo-bell" aria-label="Notifications" onClick={() => setSheet("notifications")}>
-            <Icon d={I.bell} />
-            <span className="dot" />
-          </button>
+    <div className="mx-auto min-h-screen w-full max-w-md px-5 pb-28" style={{ backgroundColor: BG }}>
+      <style>{GLOBAL_CSS}</style>
+
+      {/* HEADER */}
+      <div className="flex items-start justify-between px-1 pt-6">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#B3A28C]">
+            Your account
+          </p>
+          <h1 className="mt-1 text-[26px] font-bold leading-tight text-[#3B2F22]">More</h1>
+          <p className="mt-1 text-[12px] text-[#9C8A73]">
+            Manage your account and app settings.
+          </p>
         </div>
 
-        <div className="mo-card">
-  <div className="mo-profile">
-    <img
-      className="mo-avatar"
-      src={profile.avatar}
-      alt="Profile photo"
-    />
+        <button
+          aria-label="Notifications"
+          onClick={() => setSheet("notifications")}
+          className="relative mt-1 flex h-10 w-10 items-center justify-center rounded-full border border-[#EEE5D8] bg-white shadow-sm transition-colors hover:bg-[#F7F0E6]"
+        >
+          <Bell className="h-[17px] w-[17px] text-[#8A7966]" />
+          <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-[#D05B4A]" />
+        </button>
+      </div>
 
-    <div>
-      <h3>{profile.name}</h3>
-      <span>{profile.role}</span>
-      <small>{profile.email}</small>
-    </div>
+      {/* PROFILE HERO CARD */}
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[#EEE5D8] bg-[#FFFDF9] shadow-sm">
+        <button
+          onClick={openProfile}
+          aria-label="Edit profile"
+          className="group flex w-full items-center gap-3.5 p-4 text-left"
+        >
+          <span className="relative shrink-0">
+            <img
+              src={profile.avatar}
+              alt="Profile photo"
+              className="h-14 w-14 rounded-full border-2 border-[#F2E2CD] object-cover"
+            />
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-[#3B2F22] text-white">
+              <Camera size={10} />
+            </span>
+          </span>
 
-    <button
-      type="button"
-      className="profile-arrow"
-      onClick={() => {
-        setDraft(profile);
-        setSelectedAvatar(profile.avatar || AVATAR);
-        setSheet("profile");
-      }}
-      aria-label="Edit profile"
-    >
-      <Chevron />
-    </button>
-  </div>
-</div>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[15px] font-bold text-[#3B2F22]">
+              {profile.name || "Your name"}
+            </span>
+            <span className="mt-0.5 block truncate text-[12px] font-medium text-[#B5793A]">
+              {profile.role}
+            </span>
+            <span className="mt-0.5 block truncate text-[12px] text-[#A89684]">
+              {profile.email || "—"}
+            </span>
+          </span>
 
-        <h2 className="mo-sec">Quick Actions</h2>
+          <ChevronRight size={16} className="shrink-0 text-[#D8CFC2] transition-transform group-hover:translate-x-0.5" />
+        </button>
 
-<div className="mo-card mo-quick">
-
-  {/* Add Event */}
-  <button
-    type="button"
-    onClick={() => navigate("/add-event")}
-  >
-    <span className="ic">
-      <Icon d={I.calPlus} size={22} />
-    </span>
-    Add Event
-  </button>
-
-  {/* Add Client */}
-  <button
-    type="button"
-    onClick={() => navigate("/clients")}
-  >
-    <span className="ic">
-      <Icon d={I.userPlus} size={22} />
-    </span>
-    Add Client
-  </button>
-
-  {/* Calendar */}
-  <button
-    type="button"
-    onClick={() => navigate("/calendar")}
-  >
-    <span className="ic">
-      <Icon d={I.cal} size={22} />
-    </span>
-    Calendar
-  </button>
-
-  {/* Reminders */}
-  <button
-    type="button"
-    onClick={() => navigate("/reminders")}
-  >
-    <span className="ic">
-      <Icon d={I.bell} size={22} />
-    </span>
-    Reminders
-  </button>
-
-</div>
-
-        <h2 className="mo-sec">Management</h2>
-        <div className="mo-card">
-          {MANAGEMENT.map((m) => (
-            <Row key={m.id} icon={m.icon} label={m.label}
-              right={<span className="mo-pill">{m.count}</span>}
-              onClick={() => notify(`${m.label}: ${m.count} items`)} />
+        <div className="grid grid-cols-3 divide-x divide-[#F1E9DD] border-t border-[#F1E9DD]">
+          {[
+            ["Events", MANAGEMENT[1].count],
+            ["Clients", MANAGEMENT[0].count],
+            ["Tasks", MANAGEMENT[3].count],
+          ].map(([label, value]) => (
+            <div key={label} className="px-2 py-3 text-center">
+              <p className="text-[15px] font-bold text-[#3B2F22]">{value}</p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#B3A28C]">
+                {label}
+              </p>
+            </div>
           ))}
         </div>
+      </div>
 
-        <h2 className="mo-sec">Preferences</h2>
-        <div className="mo-card">
-          <Row icon={I.bell} label="Notifications"
-            right={Object.values(notifs).filter(Boolean).length + " on"}
-            onClick={() => setSheet("notifications")} />
-          <Row icon={I.paint} label="Appearance" right={theme} onClick={() => setSheet("theme")} />
-          <Row icon={I.globe} label="Language" right={language} onClick={() => setSheet("language")} />
-          <div className="mo-row" style={{ cursor: "default" }}>
-            <span className="ic"><Icon d={I.cloud} /></span>
-            <span className="lbl">Backup &amp; Sync</span>
-            <span className="right" style={{ gap: 10 }}>
+      {/* QUICK ACTIONS */}
+      <SectionTitle>Quick Actions</SectionTitle>
+      <div className="grid grid-cols-4 gap-2.5">
+        {[
+          { label: "Add Event", icon: CalendarPlus, tint: "bg-amber-100/70 text-amber-800", to: "/add-event" },
+          { label: "Add Client", icon: UserPlus, tint: "bg-rose-100/70 text-rose-800", to: "/clients" },
+          { label: "Calendar", icon: Calendar, tint: "bg-sky-100/70 text-sky-800", to: "/calendar" },
+          { label: "Reminders", icon: Bell, tint: "bg-violet-100/70 text-violet-800", to: "/reminders" },
+        ].map((q) => (
+          <button
+            key={q.label}
+            onClick={() => navigate(q.to)}
+            className="flex flex-col items-center gap-2 rounded-2xl border border-[#EEE5D8] bg-[#FFFDF9] px-1 py-3.5 shadow-sm transition-all hover:border-[#E0D3C0] hover:shadow-md active:scale-[0.96]"
+          >
+            <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${q.tint}`}>
+              <q.icon size={19} />
+            </span>
+            <span className="text-[10.5px] font-semibold text-[#5C4B3A]">{q.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* MANAGEMENT */}
+      <SectionTitle>Management</SectionTitle>
+      <div className="overflow-hidden rounded-2xl border border-[#EEE5D8] bg-[#FFFDF9] shadow-sm">
+        <div className="divide-y divide-[#F1E9DD]">
+          {MANAGEMENT.map((m) => (
+            <Row
+              key={m.id}
+              icon={m.icon}
+              label={m.label}
+              right={<Pill>{m.count}</Pill>}
+              onClick={() => notify(`${m.label}: ${m.count} items`)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* PREFERENCES */}
+      <SectionTitle>Preferences</SectionTitle>
+      <div className="overflow-hidden rounded-2xl border border-[#EEE5D8] bg-[#FFFDF9] shadow-sm">
+        <div className="divide-y divide-[#F1E9DD]">
+          <Row
+            icon={Bell}
+            label="Notifications"
+            right={<Pill>{notificationsOn} on</Pill>}
+            onClick={() => setSheet("notifications")}
+          />
+          <Row icon={Palette} label="Appearance" right={theme} onClick={() => setSheet("theme")} />
+          <Row icon={Globe} label="Language" right={language} onClick={() => setSheet("language")} />
+          <div className="flex items-center gap-3.5 px-4 py-3.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F7F0E6] text-[#B5793A]">
+              <Cloud size={17} />
+            </span>
+            <span className="text-sm font-medium text-[#3B2F22]">Backup &amp; Sync</span>
+            <span className="ml-auto flex items-center gap-2.5 text-xs text-[#9C8A73]">
               {backup ? "On" : "Off"}
-              <button className={`mo-switch${backup ? " on" : ""}`} aria-label="Toggle backup and sync"
-                onClick={() => { setBackup((b) => !b); setToast(`Backup ${backup ? "disabled" : "enabled"}`); }}>
-                <i />
-              </button>
+              <Switch
+                on={backup}
+                label="Toggle backup and sync"
+                onToggle={() => {
+                  setBackup((b) => !b);
+                  setToast(`Backup ${backup ? "disabled" : "enabled"}`);
+                }}
+              />
             </span>
           </div>
         </div>
+      </div>
 
-        <h2 className="mo-sec">Support</h2>
-        <div className="mo-card">
-          <Row icon={I.help} label="Help & FAQ" onClick={() => setSheet("help")} />
-          <Row icon={I.mail} label="Contact Support" onClick={() => setSheet("contact")} />
-          <Row icon={I.info} label="About App" onClick={() => setSheet("about")} />
+      {/* SUPPORT */}
+      <SectionTitle>Support</SectionTitle>
+      <div className="overflow-hidden rounded-2xl border border-[#EEE5D8] bg-[#FFFDF9] shadow-sm">
+        <div className="divide-y divide-[#F1E9DD]">
+          <Row icon={HelpCircle} label="Help & FAQ" onClick={() => setSheet("help")} />
+          <Row icon={Mail} label="Contact Support" onClick={() => setSheet("contact")} />
+          <Row icon={Info} label="About App" onClick={() => setSheet("about")} />
+        </div>
+      </div>
+
+      {/* LOG OUT / DELETE */}
+      <button
+        onClick={() => setSheet("logout")}
+        className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl border border-[#F0D5CF] bg-[#FDF1EE] px-4 py-3.5 text-sm font-bold text-[#C0503C] transition-all hover:bg-[#FBE7E2] active:scale-[0.98]"
+      >
+        <LogOut size={16} />
+        Log Out
+      </button>
+
+      <button
+        onClick={() => setSheet("delete-account")}
+        className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-[#F0C9C2] bg-white px-4 py-3.5 text-sm font-bold text-[#C0503C] transition-all hover:bg-[#FDF6F4] active:scale-[0.98]"
+      >
+        <Trash2 size={15} />
+        Delete Account
+      </button>
+
+      <p className="mt-5 text-center text-[11px] font-medium text-[#B0A191]">Version 1.0.0</p>
+
+      {/* ── NOTIFICATIONS SHEET ── */}
+      <Modal open={sheet === "notifications"} onClose={close}>
+        <SheetHeader icon={Bell} title="Notifications" subtitle="Choose what you want to be alerted about." onClose={close} />
+        <div className="space-y-2 px-4 pb-6">
+          {[["push", "Push notifications"], ["email", "Email updates"], ["reminders", "Event reminders"]].map(([k, label]) => (
+            <div key={k} className="flex items-center justify-between rounded-xl border border-[#EEE5D8] bg-white px-3.5 py-3">
+              <span className="text-[13.5px] text-[#3B2F22]">{label}</span>
+              <Switch
+                on={notifs[k]}
+                label={`Toggle ${label}`}
+                onToggle={() => setNotifs((n) => ({ ...n, [k]: !n[k] }))}
+              />
+            </div>
+          ))}
+          <div className="pt-2">
+            <PrimaryBtn onClick={() => notify("Notification settings saved")}>Done</PrimaryBtn>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── APPEARANCE SHEET ── */}
+      <Modal open={sheet === "theme"} onClose={close}>
+        <SheetHeader icon={Palette} title="Appearance" subtitle="Pick how the app should look." onClose={close} />
+        <div className="space-y-2 px-4 pb-6">
+          {THEMES.map((t) => (
+            <OptionButton key={t} selected={theme === t} onClick={() => setTheme(t)}>
+              {t}
+            </OptionButton>
+          ))}
+          <div className="pt-2">
+            <PrimaryBtn onClick={() => notify(`Appearance set to ${theme}`)}>Apply</PrimaryBtn>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── LANGUAGE SHEET ── */}
+      <Modal open={sheet === "language"} onClose={close}>
+        <SheetHeader icon={Globe} title="Language" subtitle="Select your preferred language." onClose={close} />
+        <div className="space-y-2 px-4 pb-6">
+          {LANGUAGES.map((l) => (
+            <OptionButton key={l} selected={language === l} onClick={() => setLanguage(l)}>
+              {l}
+            </OptionButton>
+          ))}
+          <div className="pt-2">
+            <PrimaryBtn onClick={() => notify(`Language set to ${language}`)}>Apply</PrimaryBtn>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── HELP SHEET ── */}
+      <Modal open={sheet === "help"} onClose={close}>
+        <SheetHeader icon={HelpCircle} title="Help & FAQ" subtitle="Quick answers to common questions." onClose={close} />
+        <div className="space-y-2.5 overflow-y-auto px-4 pb-6">
+          {[
+            ["How do I create an event?", "Go to Quick Actions and tap Add Event, then slide to save."],
+            ["Can I invite my team?", "Open Management → Team and add members by email."],
+            ["Where is my data stored?", "Locally on this device, synced when Backup & Sync is on."],
+          ].map(([q, a]) => (
+            <div key={q} className="rounded-xl border border-[#EEE5D8] bg-white px-4 py-3.5">
+              <p className="text-[13.5px] font-semibold text-[#3B2F22]">{q}</p>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#9A8874]">{a}</p>
+            </div>
+          ))}
+          <div className="pt-1">
+            <PrimaryBtn onClick={close}>Close</PrimaryBtn>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── CONTACT SHEET ── */}
+      <Modal open={sheet === "contact"} onClose={close}>
+        <SheetHeader icon={Mail} title="Contact Support" subtitle="Tell us what went wrong and we'll get back to you." onClose={close} />
+        <div className="space-y-2 px-4 pb-6">
+          <textarea
+            rows={4}
+            value={support}
+            onChange={(e) => setSupport(e.target.value)}
+            placeholder="Describe your issue…"
+            className="w-full resize-none rounded-xl border border-[#EEE5D8] bg-white px-3.5 py-3 text-[13.5px] text-[#3A2F26] outline-none transition-colors placeholder:text-[#C4B5A0] focus:border-[#D8A15F]"
+          />
+          <PrimaryBtn disabled={!support.trim()} onClick={() => { setSupport(""); notify("Message sent to support"); }}>
+            Send message
+          </PrimaryBtn>
+          <GhostBtn onClick={close}>Cancel</GhostBtn>
+        </div>
+      </Modal>
+
+      {/* ── ABOUT SHEET ── */}
+      <Modal open={sheet === "about"} onClose={close}>
+        <SheetHeader icon={Info} title="About App" onClose={close} />
+        <div className="space-y-2 px-4 pb-6">
+          <p className="px-1 pb-1 text-[13px] leading-relaxed text-[#9A8874]">
+            Event Manager helps you plan events, track clients, payments and tasks in one calm workspace.
+          </p>
+          <div className="flex items-center justify-between rounded-xl border border-[#EEE5D8] bg-white px-3.5 py-3 text-[13.5px]">
+            <span className="text-[#5C4B3A]">Version</span>
+            <span className="font-semibold text-[#3B2F22]">1.0.0</span>
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-[#EEE5D8] bg-white px-3.5 py-3 text-[13.5px]">
+            <span className="text-[#5C4B3A]">Build</span>
+            <span className="font-semibold text-[#3B2F22]">2026.08</span>
+          </div>
+          <div className="pt-2">
+            <PrimaryBtn onClick={close}>Close</PrimaryBtn>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── LOGOUT SHEET ── */}
+      <Modal open={sheet === "logout"} onClose={close}>
+        <SheetHeader icon={LogOut} title="Log out?" subtitle="You'll need to sign in again to access your events." onClose={close} />
+        <div className="space-y-2 px-4 pb-6">
+          <PrimaryBtn
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              setSheet(null);
+              navigate("/login");
+            }}
+          >
+            Yes, log out
+          </PrimaryBtn>
+          <GhostBtn onClick={close}>Stay signed in</GhostBtn>
+        </div>
+      </Modal>
+
+      {/* ── DELETE ACCOUNT SHEET ── */}
+      <Modal open={sheet === "delete-account"} onClose={close}>
+        <div className="px-5 pb-6 pt-5 text-center">
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FDF0ED] text-[#C0503C]">
+            <TriangleAlert size={28} />
+          </span>
+          <h4 className="mt-4 text-base font-bold text-[#3B2F22]">Delete Account?</h4>
+          <p className="mx-auto mt-1.5 max-w-[280px] text-[13px] leading-relaxed text-[#9A8874]">
+            This will permanently delete your account and all your data. This action cannot be undone.
+          </p>
+          <div className="mt-5 space-y-2 text-left">
+            <DangerBtn onClick={handleDeleteAccount}>Delete Permanently</DangerBtn>
+            <GhostBtn onClick={close}>Cancel</GhostBtn>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── EDIT PROFILE SHEET ── */}
+      <Modal open={sheet === "profile"} onClose={close}>
+        <div className="flex shrink-0 items-center gap-3 px-5 pb-3 pt-4">
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Back"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#EEE5D8] bg-white text-[#5C4B3A] transition-colors hover:bg-[#F7F0E6]"
+          >
+            <ArrowLeft size={17} />
+          </button>
+          <div>
+            <h4 className="text-[17px] font-bold text-[#3B2F22]">Edit Profile</h4>
+            <p className="mt-0.5 text-xs text-[#9C8A73]">Update the details shown across the app.</p>
+          </div>
         </div>
 
-        <button className="mo-logout" onClick={() => setSheet("logout")}>Log Out</button>
-        <button
-  className="mo-delete"
-  onClick={() => setSheet("delete-account")}
->
-  Delete Account
-</button>
-        <div className="mo-ver">Version 1.0.0</div>
-      </div>
-
-      {sheet && (
-        <div
-  className={`mo-modal ${
-    sheet === "profile" ? "profile-modal" : ""
-  }`}
-  onClick={close}
->
-          <div className="mo-sheet" onClick={(e) => e.stopPropagation()}>
-            {sheet === "profile" && (
-  <div className="profile-sheet">
-
-    {/* Header */}
-    <div className="profile-header">
-
-      <button
-        type="button"
-        className="profile-back"
-        onClick={close}
-        aria-label="Back"
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M19 12H5" />
-          <path d="M12 19l-7-7 7-7" />
-        </svg>
-      </button>
-
-      <div className="profile-title">
-        <h4>Edit Profile</h4>
-        <p>Update the details shown across the app.</p>
-      </div>
-
-    </div>
-
-
-    {/* Profile Photo */}
-    <div className="profile-photo-card">
-
-      <p className="profile-photo-title">
-        Profile Photo
-      </p>
-
-      <div className="profile-image-wrap">
-
-        <img
-          src={selectedAvatar}
-          alt="Profile"
-          className="profile-main-image"
-        />
-
-        {/* Camera button */}
-        <label className="profile-camera">
-
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-
-              if (!file) return;
-
-              const imageUrl = URL.createObjectURL(file);
-
-              setSelectedAvatar(imageUrl);
-
-              setDraft({
-                ...draft,
-                avatar: imageUrl,
-              });
-            }}
-          />
-
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M4 7h4l2-2h4l2 2h4v12H4z" />
-            <circle cx="12" cy="13" r="3" />
-          </svg>
-
-        </label>
-
-      </div>
-
-
-      {/* Avatar choices */}
-      <div className="avatar-options">
-
-        {/* Upload */}
-        <label
-          className={`avatar-option ${
-            selectedAvatar === "upload" ? "selected" : ""
-          }`}
-        >
-
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-
-              if (!file) return;
-
-              const imageUrl = URL.createObjectURL(file);
-
-              setSelectedAvatar(imageUrl);
-
-              setDraft({
-                ...draft,
-                avatar: imageUrl,
-              });
-            }}
-          />
-
-          <span className="avatar-icon">📷</span>
-          <span>Upload</span>
-
-        </label>
-
-
-        {/* Boy */}
-        <button
-          type="button"
-          className={`avatar-option ${
-            selectedAvatar === BOY_AVATAR ? "selected" : ""
-          }`}
-          onClick={() => {
-            setSelectedAvatar(BOY_AVATAR);
-            setDraft({
-              ...draft,
-              avatar: BOY_AVATAR,
-            });
-          }}
-        >
-          <span className="avatar-icon">👨🏻</span>
-          <span>Boy</span>
-        </button>
-
-
-        {/* Girl */}
-        <button
-          type="button"
-          className={`avatar-option ${
-            selectedAvatar === GIRL_AVATAR ? "selected" : ""
-          }`}
-          onClick={() => {
-            setSelectedAvatar(GIRL_AVATAR);
-            setDraft({
-              ...draft,
-              avatar: GIRL_AVATAR,
-            });
-          }}
-        >
-          <span className="avatar-icon">👩🏻</span>
-          <span>Girl</span>
-        </button>
-
-
-        {/* Default */}
-        <button
-          type="button"
-          className={`avatar-option ${
-            selectedAvatar === AVATAR ? "selected" : ""
-          }`}
-          onClick={() => {
-            setSelectedAvatar(AVATAR);
-            setDraft({
-              ...draft,
-              avatar: AVATAR,
-            });
-          }}
-        >
-          <span className="avatar-icon">👤</span>
-          <span>Default</span>
-        </button>
-
-      </div>
-
-    </div>
-
-
-    {/* Profile fields */}
-    <div className="profile-fields">
-
-      {/* Full Name */}
-      <div className="profile-field">
-        <label>Full Name</label>
-
-        <input
-          value={draft.name}
-          onChange={(e) =>
-            setDraft({
-              ...draft,
-              name: e.target.value,
-            })
-          }
-        />
-      </div>
-
-
-      {/* Role */}
-      <div className="profile-field">
-        <label>Role / Designation</label>
-
-        <input
-          value={draft.role}
-          onChange={(e) =>
-            setDraft({
-              ...draft,
-              role: e.target.value,
-            })
-          }
-        />
-      </div>
-
-
-      {/* Email */}
-      <div className="profile-field">
-        <label>Email</label>
-
-        <input
-          value={draft.email}
-          disabled
-        />
-      </div>
-
-
-      {/* Phone */}
-      <div className="profile-field">
-        <label>Phone Number</label>
-
-        <input
-          value={draft.phone || ""}
-          onChange={(e) =>
-            setDraft({
-              ...draft,
-              phone: e.target.value,
-            })
-          }
-          placeholder="+91 98765 43210"
-        />
-      </div>
-
-
-      {/* Save */}
-      <button
-        type="button"
-        className="profile-save"
-        onClick={async () => {
-  try {
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      setToast("Please login again");
-      return;
-    }
-
-    const response = await fetch(
-      "https://event-manager-pls6.onrender.com/auth/profile",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          full_name: draft.name,
-          phone: draft.phone || "",
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.detail || "Failed to update profile"
-      );
-    }
-
-    // Save updated user returned by backend
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        ...data.user,
-        avatar: selectedAvatar,
-      })
-    );
-
-    // Update More page immediately
-    setProfile({
-      ...draft,
-      name: data.user.full_name,
-      phone: data.user.phone || "",
-      avatar: selectedAvatar,
-    });
-
-    // Tell other pages/components that profile changed
-    window.dispatchEvent(new Event("profileUpdated"));
-
-    setToast("Profile updated successfully");
-    setSheet(null);
-
-  } catch (error) {
-    console.error("Profile update error:", error);
-
-    setToast(
-      error.message || "Failed to update profile"
-    );
-  }
-}}
-      >
-        ✓ &nbsp; Save Changes
-      </button>
-
-    </div>
-
-  </div>
-)}
-
-            {sheet === "notifications" && (
-              <>
-                <h4>Notifications</h4>
-                <p>Choose what you want to be alerted about.</p>
-                {[["push", "Push notifications"], ["email", "Email updates"], ["reminders", "Event reminders"]].map(([k, label]) => (
-                  <div key={k} className="mo-opt" style={{ justifyContent: "space-between" }}>
-                    <span>{label}</span>
-                    <button className={`mo-switch${notifs[k] ? " on" : ""}`} aria-label={`Toggle ${label}`}
-                      onClick={() => setNotifs((n) => ({ ...n, [k]: !n[k] }))}><i /></button>
-                  </div>
-                ))}
-                <button className="mo-btn primary" onClick={() => notify("Notification settings saved")}>Done</button>
-              </>
-            )}
-
-            {sheet === "theme" && (
-              <>
-                <h4>Appearance</h4>
-                <p>Pick how the app should look.</p>
-                {THEMES.map((t) => (
-                  <button key={t} className={`mo-opt${theme === t ? " sel" : ""}`} onClick={() => setTheme(t)}>{t}</button>
-                ))}
-                <button className="mo-btn primary" onClick={() => notify(`Appearance set to ${theme}`)}>Apply</button>
-              </>
-            )}
-
-            {sheet === "language" && (
-              <>
-                <h4>Language</h4>
-                <p>Select your preferred language.</p>
-                {LANGUAGES.map((l) => (
-                  <button key={l} className={`mo-opt${language === l ? " sel" : ""}`} onClick={() => setLanguage(l)}>{l}</button>
-                ))}
-                <button className="mo-btn primary" onClick={() => notify(`Language set to ${language}`)}>Apply</button>
-              </>
-            )}
-
-            {sheet === "help" && (
-              <>
-                <h4>Help &amp; FAQ</h4>
-                <p>Quick answers to common questions.</p>
-                {[
-                  ["How do I create an event?", "Go to Quick Actions and tap Add Event, then slide to save."],
-                  ["Can I invite my team?", "Open Management → Team and add members by email."],
-                  ["Where is my data stored?", "Locally on this device, synced when Backup & Sync is on."],
-                ].map(([q, a]) => (
-                  <div key={q} className="mo-opt" style={{ display: "block" }}>
-                    <strong style={{ display: "block", marginBottom: 4 }}>{q}</strong>
-                    <span style={{ color: "#9a8874" }}>{a}</span>
-                  </div>
-                ))}
-                <button className="mo-btn primary" onClick={close}>Close</button>
-              </>
-            )}
-
-            {sheet === "contact" && (
-              <>
-                <h4>Contact Support</h4>
-                <p>Tell us what went wrong and we&apos;ll get back to you.</p>
-                <textarea className="mo-input" rows={4} value={support} placeholder="Describe your issue…" onChange={(e) => setSupport(e.target.value)} />
-                <button className="mo-btn primary" disabled={!support.trim()}
-                  onClick={() => { setSupport(""); notify("Message sent to support"); }}>Send message</button>
-                <button className="mo-btn" onClick={close}>Cancel</button>
-              </>
-            )}
-
-            {sheet === "about" && (
-              <>
-                <h4>About App</h4>
-                <p>Event Manager helps you plan events, track clients, payments and tasks in one calm workspace.</p>
-                <div className="mo-opt" style={{ justifyContent: "space-between" }}><span>Version</span><span>1.0.0</span></div>
-                <div className="mo-opt" style={{ justifyContent: "space-between" }}><span>Build</span><span>2026.08</span></div>
-                <button className="mo-btn primary" onClick={close}>Close</button>
-              </>
-            )}
-
-            {sheet === "logout" && (
-  <>
-    <h4>Log out?</h4>
-
-    <p>
-      You&apos;ll need to sign in again to access your events.
-    </p>
-
-    <button
-      className="mo-btn primary"
-      onClick={() => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        setSheet(null);
-
-        navigate("/login");
-      }}
-    >
-      Yes, log out
-    </button>
-
-    <button
-      className="mo-btn"
-      onClick={close}
-    >
-      Stay signed in
-    </button>
-  </>
-)}
-            {sheet === "delete-account" && (
-  <>
-    <div
-      style={{
-        width: 64,
-        height: 64,
-        borderRadius: "50%",
-        background: "#fff0ed",
-        color: "#c0503c",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        margin: "0 auto 16px",
-        fontSize: 28,
-      }}
-    >
-      ⚠️
-    </div>
-
-    <h4 style={{ textAlign: "center" }}>
-      Delete Account?
-    </h4>
-
-    <p style={{ textAlign: "center" }}>
-      This will permanently delete your account and all your
-      data. This action cannot be undone.
-    </p>
-
-    <button
-      className="mo-btn"
-      style={{
-        background: "#c0503c",
-        borderColor: "#c0503c",
-        color: "#fff",
-      }}
-      onClick={handleDeleteAccount}
-    >
-      Delete Permanently
-    </button>
-
-    <button
-      className="mo-btn"
-      onClick={close}
-    >
-      Cancel
-    </button>
-  </>
-)}
+        <div className="mo-fade space-y-4 overflow-y-auto px-4 pb-6">
+          {/* Photo */}
+          <div className="rounded-2xl border border-[#EEE5D8] bg-white p-4">
+            <p className="mb-3 text-[13px] font-bold text-[#3B2F22]">Profile Photo</p>
+
+            <div className="relative mx-auto mb-4 h-[104px] w-[104px]">
+              <img
+                src={selectedAvatar}
+                alt="Profile"
+                className="h-[104px] w-[104px] rounded-full border-4 border-[#F5DCBF] bg-white object-cover"
+              />
+              <label className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-[3px] border-white bg-[#FFF4E5] text-[#B5793A] shadow-md transition-transform active:scale-95">
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+
+                    if (!file) return;
+
+                    const imageUrl = URL.createObjectURL(file);
+
+                    setSelectedAvatar(imageUrl);
+
+                    setDraft({
+                      ...draft,
+                      avatar: imageUrl,
+                    });
+                  }}
+                />
+                <Camera size={16} />
+              </label>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2">
+              {/* Upload */}
+              <label className={`flex min-h-[62px] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border text-[11px] transition-colors ${
+                selectedAvatar === "upload"
+                  ? "border-amber-300 bg-amber-50 font-semibold text-amber-800"
+                  : "border-[#EEE5D8] bg-white text-[#5C4B3A] hover:bg-[#F7F0E6]"
+              }`}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+
+                    if (!file) return;
+
+                    const imageUrl = URL.createObjectURL(file);
+
+                    setSelectedAvatar(imageUrl);
+
+                    setDraft({
+                      ...draft,
+                      avatar: imageUrl,
+                    });
+                  }}
+                />
+                <span className="text-[20px] leading-none">📷</span>
+                <span>Upload</span>
+              </label>
+
+              {/* Boy */}
+              <button
+                type="button"
+                className={`flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-xl border text-[11px] transition-colors ${
+                  selectedAvatar === BOY_AVATAR
+                    ? "border-amber-300 bg-amber-50 font-semibold text-amber-800"
+                    : "border-[#EEE5D8] bg-white text-[#5C4B3A] hover:bg-[#F7F0E6]"
+                }`}
+                onClick={() => {
+                  setSelectedAvatar(BOY_AVATAR);
+                  setDraft({
+                    ...draft,
+                    avatar: BOY_AVATAR,
+                  });
+                }}
+              >
+                <span className="text-[20px] leading-none">👨🏻</span>
+                <span>Boy</span>
+              </button>
+
+              {/* Girl */}
+              <button
+                type="button"
+                className={`flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-xl border text-[11px] transition-colors ${
+                  selectedAvatar === GIRL_AVATAR
+                    ? "border-amber-300 bg-amber-50 font-semibold text-amber-800"
+                    : "border-[#EEE5D8] bg-white text-[#5C4B3A] hover:bg-[#F7F0E6]"
+                }`}
+                onClick={() => {
+                  setSelectedAvatar(GIRL_AVATAR);
+                  setDraft({
+                    ...draft,
+                    avatar: GIRL_AVATAR,
+                  });
+                }}
+              >
+                <span className="text-[20px] leading-none">👩🏻</span>
+                <span>Girl</span>
+              </button>
+
+              {/* Default */}
+              <button
+                type="button"
+                className={`flex min-h-[62px] flex-col items-center justify-center gap-1 rounded-xl border text-[11px] transition-colors ${
+                  selectedAvatar === AVATAR
+                    ? "border-amber-300 bg-amber-50 font-semibold text-amber-800"
+                    : "border-[#EEE5D8] bg-white text-[#5C4B3A] hover:bg-[#F7F0E6]"
+                }`}
+                onClick={() => {
+                  setSelectedAvatar(AVATAR);
+                  setDraft({
+                    ...draft,
+                    avatar: AVATAR,
+                  });
+                }}
+              >
+                <span className="text-[20px] leading-none">👤</span>
+                <span>Default</span>
+              </button>
+            </div>
           </div>
+
+          {/* Fields */}
+          <div className="space-y-3 rounded-2xl border border-[#EEE5D8] bg-white p-4">
+            <div>
+              <label className="mb-1.5 block pl-0.5 text-[10px] font-bold uppercase tracking-widest text-[#8F7C69]">
+                Full Name
+              </label>
+              <input
+                value={draft.name}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    name: e.target.value,
+                  })
+                }
+                className="h-10 w-full rounded-xl border border-[#EEE5D8] bg-[#FFFDF9] px-3 text-[13px] text-[#3A2F26] outline-none transition-colors focus:border-[#D8A15F]"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block pl-0.5 text-[10px] font-bold uppercase tracking-widest text-[#8F7C69]">
+                Role / Designation
+              </label>
+              <input
+                value={draft.role}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    role: e.target.value,
+                  })
+                }
+                className="h-10 w-full rounded-xl border border-[#EEE5D8] bg-[#FFFDF9] px-3 text-[13px] text-[#3A2F26] outline-none transition-colors focus:border-[#D8A15F]"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 pl-0.5 text-[10px] font-bold uppercase tracking-widest text-[#8F7C69]">
+                <Lock size={10} /> Email
+              </label>
+              <input
+                value={draft.email}
+                disabled
+                className="h-10 w-full rounded-xl border border-[#EEE5D8] bg-[#F8F5F1] px-3 text-[13px] text-[#AAA19A]"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block pl-0.5 text-[10px] font-bold uppercase tracking-widest text-[#8F7C69]">
+                Phone Number
+              </label>
+              <input
+                value={draft.phone || ""}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    phone: e.target.value,
+                  })
+                }
+                placeholder="+91 98765 43210"
+                className="h-10 w-full rounded-xl border border-[#EEE5D8] bg-[#FFFDF9] px-3 text-[13px] text-[#3A2F26] outline-none transition-colors placeholder:text-[#C4B5A0] focus:border-[#D8A15F]"
+              />
+            </div>
+
+            <button
+              type="button"
+              className="mt-1 w-full rounded-xl bg-[#B5793A] py-3 text-[13px] font-semibold text-white shadow-[0_5px_14px_rgba(181,121,58,0.25)] transition-all hover:bg-[#A56C2F] active:scale-[0.98]"
+              onClick={async () => {
+                try {
+                  const token = localStorage.getItem("access_token");
+
+                  if (!token) {
+                    setToast("Please login again");
+                    return;
+                  }
+
+                  const response = await fetch(
+                    "https://event-manager-pls6.onrender.com/auth/profile",
+                    {
+                      method: "PUT",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({
+                        full_name: draft.name,
+                        phone: draft.phone || "",
+                      }),
+                    }
+                  );
+
+                  const data = await response.json();
+
+                  if (!response.ok) {
+                    throw new Error(
+                      data.detail || "Failed to update profile"
+                    );
+                  }
+
+                  // Save updated user returned by backend
+                  localStorage.setItem(
+                    "user",
+                    JSON.stringify({
+                      ...data.user,
+                      avatar: selectedAvatar,
+                    })
+                  );
+
+                  // Update More page immediately
+                  setProfile({
+                    ...draft,
+                    name: data.user.full_name,
+                    phone: data.user.phone || "",
+                    avatar: selectedAvatar,
+                  });
+
+                  // Tell other pages/components that profile changed
+                  window.dispatchEvent(new Event("profileUpdated"));
+
+                  setToast("Profile updated successfully");
+                  setSheet(null);
+
+                } catch (error) {
+                  console.error("Profile update error:", error);
+
+                  setToast(
+                    error.message || "Failed to update profile"
+                  );
+                }
+              }}
+            >
+              ✓ &nbsp; Save Changes
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* TOAST */}
+      {toast && (
+        <div className="mo-toast-in fixed bottom-7 left-1/2 z-[60] -translate-x-1/2 whitespace-nowrap rounded-full bg-[#3A2F26] px-5 py-2.5 text-[13px] font-semibold text-[#FDF7EF] shadow-[0_8px_20px_rgba(58,47,38,0.3)]">
+          {toast}
         </div>
       )}
 
-      {toast && <div className="mo-toast">{toast}</div>}
       {sheet !== "profile" && (
-  <BottomNav active="more" theme="amber" />
-)}
+        <BottomNav active="more" theme="amber" />
+      )}
     </div>
   );
 }

@@ -1,0 +1,38 @@
+# Query: http://127.0.0.1:8000
+# ContextLines: 1
+
+7 results - 6 files
+
+frontend\src\api\authService.js:
+  3  const API = axios.create({
+  4:   baseURL: "https://event-manager-pls6.onrender.com",
+  5  });
+
+frontend\src\api\clientApi.js:
+  3  const API = axios.create({
+  4:   baseURL: "http://127.0.0.1:8000",
+  5  });
+
+frontend\src\pages\AddEvent.jsx:
+  5  const API = axios.create({
+  6:   baseURL: "http://127.0.0.1:8000",
+  7  });
+
+frontend\src\pages\Dashboard.jsx:
+  29  const API = axios.create({
+  30:   baseURL: "http://127.0.0.1:8000",
+  31  });
+
+frontend\src\pages\More.jsx:
+  416      const response = await fetch(
+  417:       `http://127.0.0.1:8000/auth/delete-account?email=${encodeURIComponent(
+  418          savedUser.email
+
+  868      const response = await fetch(
+  869:       "http://127.0.0.1:8000/auth/profile",
+  870        {
+
+frontend\src\pages\Reminders.jsx:
+   99  
+  100: const API = "http://127.0.0.1:8000";
+  101  
