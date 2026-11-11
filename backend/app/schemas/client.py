@@ -9,6 +9,10 @@ class ClientCreate(BaseModel):
     address: Optional[str] = None
     notes: Optional[str] = None
 
+    # Client profile details
+    avatar: Optional[str] = None
+    gender: Optional[str] = None
+
 
 class ClientResponse(ClientCreate):
     id: int

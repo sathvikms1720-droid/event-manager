@@ -13,6 +13,8 @@ from app.config import SECRET_KEY, ALGORITHM
 router = APIRouter(prefix="/clients", tags=["Clients"])
 
 security = HTTPBearer()
+
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
@@ -53,6 +55,7 @@ def get_current_user(
         )
 
 
+# ADD CLIENT
 @router.post("/")
 def add_client(
     client: ClientCreate,
@@ -66,6 +69,8 @@ def add_client(
         email=client.email,
         address=client.address,
         notes=client.notes,
+        avatar=client.avatar,
+        gender=client.gender,
     )
 
     db.add(new_client)
@@ -74,6 +79,8 @@ def add_client(
 
     return new_client
 
+
+# GET ALL CLIENTS
 @router.get("/")
 def get_clients(
     db: Session = Depends(get_db),
@@ -119,6 +126,11 @@ def get_clients(
             "email": client.email,
             "address": client.address,
             "notes": client.notes,
+
+            # Client profile details
+            "avatar": client.avatar,
+            "gender": client.gender,
+
             "created_at": client.created_at,
 
             "events": total_events,
@@ -138,6 +150,7 @@ def get_clients(
     return result
 
 
+# GET SINGLE CLIENT
 @router.get("/{client_id}")
 def get_client(
     client_id: int,
@@ -158,6 +171,7 @@ def get_client(
     return client
 
 
+# UPDATE CLIENT
 @router.put("/{client_id}")
 def update_client(
     client_id: int,
@@ -176,7 +190,9 @@ def update_client(
             detail="Client not found"
         )
 
-    for key, value in client.model_dump().items():
+    update_data = client.model_dump()
+
+    for key, value in update_data.items():
         setattr(existing, key, value)
 
     db.commit()
@@ -185,6 +201,7 @@ def update_client(
     return existing
 
 
+# DELETE CLIENT
 @router.delete("/{client_id}")
 def delete_client(
     client_id: int,
@@ -202,14 +219,12 @@ def delete_client(
             detail="Client not found"
         )
 
-    # Delete all events belonging to this client first
+    # Delete related events first
     db.query(Event).filter(
         Event.client_id == client.id
     ).delete(synchronize_session=False)
 
-    # Then delete the client
     db.delete(client)
-
     db.commit()
 
     return {

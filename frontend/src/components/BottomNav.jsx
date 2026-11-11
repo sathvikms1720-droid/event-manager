@@ -4,9 +4,9 @@ import { Home, Calendar, Plus, Users, MoreHorizontal } from "lucide-react";
 
 const themes = {
   amber: {
-    active: "text-[#B4650E]",
-    inactive: "text-[#8A8178]",
-    bg: "bg-[#FBF3E9]",
+    active: "text-[#A65308]",
+    inactive: "text-[#8A7D70]",
+    bg: "bg-[#F3EAE0]",
     fabBg: "bg-[#FBEEDF]",
     fabRing: "ring-white",
   },
@@ -54,7 +54,7 @@ export function BottomNav({ active = "dashboard", theme = "amber" }) {
 >
         <NavItem
           name="dashboard"
-          label="Dashboard"
+          label="Home"
           Icon={Home}
           filled
           active={active}

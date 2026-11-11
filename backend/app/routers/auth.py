@@ -1,3 +1,4 @@
+
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -37,6 +38,7 @@ security = HTTPBearer()
 class ProfileUpdate(BaseModel):
     full_name: str
     phone: str | None = None
+    profile_image: str | None = None
 
 
 # =========================================================
@@ -158,7 +160,8 @@ def login(
             "id": db_user.id,
             "full_name": db_user.full_name,
             "email": db_user.email,
-            "phone": db_user.phone
+            "phone": db_user.phone,
+            "profile_image": db_user.profile_image
         }
     }
 
@@ -175,10 +178,8 @@ def update_profile(
 ):
 
     try:
-        # Get token
         token = credentials.credentials
 
-        # Decode token
         payload = jwt.decode(
             token,
             SECRET_KEY,
@@ -193,7 +194,6 @@ def update_profile(
                 detail="Invalid token"
             )
 
-        # Find logged-in user
         db_user = (
             db.query(User)
             .filter(User.id == int(user_id))
@@ -206,14 +206,17 @@ def update_profile(
                 detail="User not found"
             )
 
-        # Update full name
+        # Update name
         db_user.full_name = profile.full_name.strip()
 
-        # Update phone
+        # Update phone only when provided
         if profile.phone is not None:
             db_user.phone = profile.phone.strip()
 
-        # Save changes
+        # Update image only when provided
+        if "profile_image" in profile.model_fields_set:
+            db_user.profile_image = profile.profile_image
+
         db.commit()
         db.refresh(db_user)
 
@@ -224,7 +227,8 @@ def update_profile(
                 "id": db_user.id,
                 "full_name": db_user.full_name,
                 "email": db_user.email,
-                "phone": db_user.phone
+                "phone": db_user.phone,
+                "profile_image": db_user.profile_image
             }
         }
 

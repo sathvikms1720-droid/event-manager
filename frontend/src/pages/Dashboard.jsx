@@ -177,7 +177,12 @@ const getProfessionalClientAvatar = (gender, clientId = 0) => {
 };
 
 const getSavedClientAvatar = (client) => {
-  // Clients.jsx saves the selected/uploaded image under this exact key.
+  // PostgreSQL image is the primary source.
+  if (client.avatar) {
+    return client.avatar;
+  }
+
+  // Fallback for older clients whose images are still local.
   try {
     const savedAvatar = localStorage.getItem(
       `client_avatar_${client.id}`
@@ -188,26 +193,13 @@ const getSavedClientAvatar = (client) => {
     console.warn("Unable to read saved client avatar:", error);
   }
 
-  // Older clients may not have a local image saved yet. Use the same
-  // profile-image fallback logic as the Clients page.
-  const gender = (() => {
-    try {
-      return (
-        localStorage.getItem(`client_gender_${client.id}`) ||
-        client.gender ||
-        "male"
-      );
-    } catch {
-      return client.gender || "male";
-    }
-  })();
+  const gender =
+    client.gender ||
+    localStorage.getItem(`client_gender_${client.id}`) ||
+    "male";
 
-  return (
-    client.avatar ||
-    getProfessionalClientAvatar(gender, client.id)
-  );
+  return getProfessionalClientAvatar(gender, client.id);
 };
-
 const getDateTime = (event) => {
   if (!event?.date) return new Date(0);
 
@@ -376,6 +368,7 @@ export default function Dashboard() {
   const cachedDashboard = dashboardCache.get(dashboardCacheKey);
 
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
 
   const [dashboardData, setDashboardData] = useState(
     cachedDashboard?.dashboardData ?? null
@@ -396,8 +389,28 @@ export default function Dashboard() {
   ------------------------------------------------------- */
 
   useEffect(() => {
-    // Show cached data immediately; refresh it in the background on return.
+    // Load dashboard data.
     loadDashboard({ showLoader: !cachedDashboard });
+
+    // Refresh when a client is added or edited on the Clients page.
+    const handleClientsUpdated = () => {
+      loadDashboard({ showLoader: false });
+    };
+
+    // Refresh when returning to the Dashboard.
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadDashboard({ showLoader: false });
+      }
+    };
+
+    window.addEventListener("clientsUpdated", handleClientsUpdated);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("clientsUpdated", handleClientsUpdated);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -513,6 +526,33 @@ export default function Dashboard() {
   const events = allEvents
     .map(normalizeBackendEvent)
     .sort((a, b) => getDateTime(a) - getDateTime(b));
+
+  // Show the complete event history using the already-loaded events; no new API call.
+  const selectedClientEvents = selectedClient
+    ? events
+        .filter((event) => {
+          const clientId = String(selectedClient.id ?? "");
+          const eventClientId = String(
+            event.client_id ?? event.clientId ?? event.client?.id ?? ""
+          );
+          const eventClientName = String(
+            typeof event.client === "string"
+              ? event.client
+              : event.client?.name || event.client_name || ""
+          )
+            .trim()
+            .toLowerCase();
+          const selectedClientName = String(selectedClient.name || "")
+            .trim()
+            .toLowerCase();
+
+          return (
+            (clientId && eventClientId && clientId === eventClientId) ||
+            (selectedClientName && eventClientName === selectedClientName)
+          );
+        })
+        .sort((a, b) => getDateTime(b) - getDateTime(a))
+    : [];
 
   // All Events: newest saved event first.
   const allEventsNewestFirst = [...events].sort((a, b) => {
@@ -1186,7 +1226,8 @@ export default function Dashboard() {
                 <button
                   key={client.id}
                   type="button"
-                  onClick={() => navigate("/clients")}
+                  onClick={() => setSelectedClient(client)}
+                  aria-label={`View event history for ${client.name || "client"}`}
                   className="flex flex-col items-center gap-2 w-[64px] shrink-0 active:scale-95 transition-transform"
                 >
                   <span
@@ -1354,6 +1395,150 @@ export default function Dashboard() {
       {/* ===================================================
           EVENT DETAIL MODAL
       =================================================== */}
+
+      {selectedClient && (
+        <div
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-stone-950/55 backdrop-blur-sm sm:items-center modal-backdrop"
+          onClick={() => setSelectedClient(null)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="client-history-title"
+            className="w-full max-w-[430px] max-h-[88vh] overflow-hidden rounded-t-[26px] bg-[#faf8f4] shadow-[0_-10px_60px_rgba(0,0,0,0.3)] sm:rounded-[26px] modal-sheet"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="border-b border-stone-200/70 bg-white px-5 pb-4 pt-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-3.5">
+                  <img
+                    src={selectedClient.avatar || getSavedClientAvatar(selectedClient)}
+                    alt=""
+                    className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-white shadow-md"
+                  />
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-stone-400">
+                      Client history
+                    </p>
+                    <h2
+                      id="client-history-title"
+                      className="mt-1 truncate text-[19px] font-semibold text-stone-900 display-font"
+                    >
+                      {selectedClient.name || "Client"}
+                    </h2>
+                    <p className="mt-0.5 truncate text-xs text-stone-500">
+                      {[selectedClient.email, selectedClient.phone]
+                        .filter(Boolean)
+                        .join(" · ") || "All events associated with this client"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Close client history"
+                  onClick={() => setSelectedClient(null)}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-600 transition hover:bg-stone-200"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-3 divide-x divide-stone-200 rounded-xl border border-stone-200/80 bg-[#faf8f4] py-2.5">
+                {[
+                  { label: "Total events", value: selectedClientEvents.length },
+                  {
+                    label: "Completed",
+                    value: selectedClientEvents.filter(
+                      (event) => event.status?.toLowerCase() === "completed"
+                    ).length,
+                  },
+                  {
+                    label: "Upcoming",
+                    value: selectedClientEvents.filter(
+                      (event) => event.status?.toLowerCase() === "upcoming"
+                    ).length,
+                  },
+                ].map(({ label, value }) => (
+                  <div key={label} className="px-2 text-center">
+                    <p className="text-base font-bold leading-none text-stone-900 tabular-nums">
+                      {value}
+                    </p>
+                    <p className="mt-1.5 text-[9px] font-medium text-stone-500">
+                      {label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="max-h-[calc(88vh-176px)] overflow-y-auto px-5 py-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-stone-900">
+                  Events
+                </h3>
+                <span className="text-[11px] text-stone-400">
+                  Most recent first
+                </span>
+              </div>
+
+              {selectedClientEvents.length > 0 ? (
+                <div className="space-y-2.5">
+                  {selectedClientEvents.map((event) => (
+                    <button
+                      key={event.id || `${event.title}-${event.date}`}
+                      type="button"
+                      onClick={() => {
+                        setSelectedClient(null);
+                        openEvent(event);
+                      }}
+                      className="flex w-full items-center gap-3 rounded-xl border border-stone-200/80 bg-white p-3 text-left transition hover:border-stone-300 hover:shadow-sm"
+                    >
+                      <img
+                        src={event.image}
+                        alt=""
+                        loading="lazy"
+                        className="h-[58px] w-[66px] shrink-0 rounded-lg object-cover"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="truncate text-[13px] font-semibold text-stone-900">
+                            {event.title}
+                          </p>
+                          <span
+                            className={`shrink-0 rounded-full px-2 py-1 text-[9px] font-semibold ${getStatusClasses(event.status)}`}
+                          >
+                            {event.status}
+                          </span>
+                        </div>
+                        <p className="mt-1.5 flex items-center gap-1.5 truncate text-[10px] text-stone-500">
+                          <CalendarDays className="h-3 w-3 shrink-0" />
+                          {event.date || "Date not set"}
+                          {event.time ? ` · ${event.time}` : ""}
+                        </p>
+                        <p className="mt-1 flex items-center gap-1.5 truncate text-[10px] text-stone-500">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          {event.venue || "Venue not specified"}
+                        </p>
+                      </div>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-stone-400" />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-stone-300 bg-white px-5 py-10 text-center">
+                  <CalendarDays className="mx-auto h-6 w-6 text-stone-400" />
+                  <p className="mt-3 text-sm font-semibold text-stone-800">
+                    No events yet
+                  </p>
+                  <p className="mt-1 text-xs text-stone-500">
+                    Events for this client will appear here.
+                  </p>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
 
       {selectedEvent && (
         <div

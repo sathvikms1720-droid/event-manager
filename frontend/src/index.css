@@ -31,3 +31,21 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
 }
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+/* Hide scrollbars throughout the entire app */
+* {
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* Internet Explorer / legacy Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none;              /* Chrome, Safari, Android WebView */
+}
+/* TEMPORARY: Move all page content slightly down for screen recording */
+#root {
+  padding-top: 18px;
+  box-sizing: border-box;
+}
